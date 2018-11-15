@@ -63,15 +63,15 @@ class UserProfile extends React.Component {
                 : props.modalName === uiConstants.UserSubscribeModal
                 ? "Create Account"
                 : // @DATAPEPS
-                  // : props.modalName === uiConstants.DataPepsUpdate
-                  // ? "Update Your Password"
-                  "?"}
+                props.modalName === uiConstants.DataPepsUpdate
+                ? "Update Your Password"
+                : "?"}
             </Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
             {/* @DATAPEPS */}
-            {/* {props.modalName === uiConstants.DataPepsUpdate ? (
+            {props.modalName === uiConstants.DataPepsUpdate ? (
               <div>
                 <p>
                   Notes now uses{" "}
@@ -86,25 +86,25 @@ class UserProfile extends React.Component {
                   for your notes.
                 </p>
               </div>
-            ) : ( */}
-            <div>
-              <h4>Username</h4>
-              <Form>
-                <FormControl
-                  type="text"
-                  name="username"
-                  disabled={props.user}
-                  onChange={this.changeUsername}
-                  {...userValue}
-                />
-                <FormControl.Static>
-                  {!props.user && this.check() === 1
-                    ? "Username can't be empty"
-                    : ""}
-                </FormControl.Static>
-              </Form>
-            </div>
-            {/* )} // @DATAPEPS */}
+            ) : (
+              <div>
+                <h4>Username</h4>
+                <Form>
+                  <FormControl
+                    type="text"
+                    name="username"
+                    disabled={props.user}
+                    onChange={this.changeUsername}
+                    {...userValue}
+                  />
+                  <FormControl.Static>
+                    {!props.user && this.check() === 1
+                      ? "Username can't be empty"
+                      : ""}
+                  </FormControl.Static>
+                </Form>
+              </div>
+            )}
             <h4>
               {props.modalName === uiConstants.UserSubscribeModal
                 ? "Password"
@@ -146,8 +146,8 @@ class UserProfile extends React.Component {
                   : props.changePassword(
                       this.state.password1,
                       this.state.password2,
-                      props.modalName
-                      // props.datapeps // @DATAPEPS
+                      props.modalName,
+                      props.datapeps // @DATAPEPS
                     );
               }}
               disabled={this.check() !== 0}
@@ -165,8 +165,8 @@ class UserProfile extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  modals: state.modals.modals
-  // datapeps: state.authentication.datapeps // @DATAPEPS
+  modals: state.modals.modals,
+  datapeps: state.authentication.datapeps // @DATAPEPS
 });
 const mapDispatchToProps = {
   ...uiActions,

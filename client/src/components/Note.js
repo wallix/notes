@@ -3,7 +3,7 @@ import { Panel, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 
 // @DATAPEPS
-// import { unclipID } from "datapeps-sdk";
+import { unclipID } from "datapeps-sdk";
 
 import { noteActions } from "../actions";
 
@@ -40,25 +40,25 @@ class Note extends React.Component {
   }
 
   // @DATAPEPS
-  // componentWillMount() {
-  //   this.decryptNote();
-  // }
-  // async decryptNote() {
-  //   try {
-  //     const { datapeps } = this.props;
-  //     const { id, data: encryptedTitle } = unclipID(this.state.Title);
-  //     const resource = await datapeps.Resource.get(id);
-  //     const Title = resource.decrypt(encryptedTitle);
-  //     const Content = resource.decrypt(this.state.Content);
-  //     this.setState({ ...this.state, Title, Content, style: "warning" });
-  //   } catch (err) {
-  //     console.log("decryptNote: ", err);
-  //   }
-  // }
+  componentWillMount() {
+    this.decryptNote();
+  }
+  async decryptNote() {
+    try {
+      const { datapeps } = this.props;
+      const { id, data: encryptedTitle } = unclipID(this.state.Title);
+      const resource = await datapeps.Resource.get(id);
+      const Title = resource.decrypt(encryptedTitle);
+      const Content = resource.decrypt(this.state.Content);
+      this.setState({ ...this.state, Title, Content, style: "warning" });
+    } catch (err) {
+      console.log("decryptNote: ", err);
+    }
+  }
 }
 
 const mapStateToProps = state => ({
-  // datapeps: state.authentication.datapeps // @DATAPEPS
+  datapeps: state.authentication.datapeps // @DATAPEPS
 });
 const mapDispatchToProps = {
   ...noteActions

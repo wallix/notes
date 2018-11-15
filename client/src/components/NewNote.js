@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
 
 // @DATAPEPS
-// import { clipID } from "datapeps-sdk";
-// import config from "../config";
+import { clipID } from "datapeps-sdk";
+import config from "../config";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
@@ -15,14 +15,14 @@ class NewNote extends React.Component {
 
     this.changeTitle = this.changeTitle.bind(this);
     this.changeContent = this.changeContent.bind(this);
-    // this.changeProtection = this.changeProtection.bind(this); // @DATAPEPS
+    this.changeProtection = this.changeProtection.bind(this); // @DATAPEPS
     this.validate = this.validate.bind(this);
     this.onAddNote = this.onAddNote.bind(this);
 
     this.state = {
       title: "",
-      content: ""
-      // protected: true // @DATAPEPS
+      content: "",
+      protected: true // @DATAPEPS
     };
   }
 
@@ -33,9 +33,9 @@ class NewNote extends React.Component {
     this.setState({ content: e.target.value });
   }
   // @DATAPEPS (a new feature)
-  // changeProtection(e) {
-  //   this.setState({ protected: e.target.checked });
-  // }
+  changeProtection(e) {
+    this.setState({ protected: e.target.checked });
+  }
   validate() {
     return this.state.title !== "";
   }
@@ -67,12 +67,12 @@ class NewNote extends React.Component {
                 onChange={this.changeContent}
               />
               {/* @DATAPEPS */}
-              {/* <Checkbox
+              <Checkbox
                 checked={this.state.protected}
                 onChange={this.changeProtection}
               >
                 Protected
-              </Checkbox> */}
+              </Checkbox>
             </Form>
           </Modal.Body>
           <Modal.Footer>
@@ -97,29 +97,29 @@ class NewNote extends React.Component {
     let title = this.state.title;
     let content = this.state.content;
     // @DATAPEPS begin
-    // if (this.state.protected) {
-    //   const { datapeps } = this.props;
-    //   const resource = await datapeps.Resource.create(
-    //     "note",
-    //     {
-    //       description: title,
-    //       URI: `${config.apiUrl}/auth/notes`,
-    //       MIMEType: "text/plain"
-    //     },
-    //     [datapeps.login]
-    //   );
-    //   title = resource.encrypt(title);
-    //   title = clipID(resource.id, title);
-    //   content = resource.encrypt(content);
-    // }
+    if (this.state.protected) {
+      const { datapeps } = this.props;
+      const resource = await datapeps.Resource.create(
+        "note",
+        {
+          description: title,
+          URI: `${config.apiUrl}/auth/notes`,
+          MIMEType: "text/plain"
+        },
+        [datapeps.login]
+      );
+      title = resource.encrypt(title);
+      title = clipID(resource.id, title);
+      content = resource.encrypt(content);
+    }
     // @DATAPEPS end
     this.props.addNote(title, content);
   }
 }
 
 const mapStateToProps = state => ({
-  modals: state.modals.modals
-  // datapeps: state.authentication.datapeps // @DATAPEPS
+  modals: state.modals.modals,
+  datapeps: state.authentication.datapeps // @DATAPEPS
 });
 const mapDispatchToProps = {
   ...uiActions,

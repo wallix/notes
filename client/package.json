@@ -6,6 +6,7 @@
     "react-scripts": "^2.0.5"
   },
   "dependencies": {
+    "datapeps-sdk": "0.0.41",
     "history": "^4.7.2",
     "long": "^4.0.0",
     "react": "^16.3.1",

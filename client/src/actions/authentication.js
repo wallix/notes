@@ -3,8 +3,8 @@ import { authService } from "../services";
 import { uiActions } from "./index";
 import { history } from "../history";
 // @DATAPEPS
-// import { ApplicationAPI } from "datapeps-sdk";
-// import config from "../config";
+import { ApplicationAPI } from "datapeps-sdk";
+import config from "../config";
 
 function login(username, password) {
   return async dispatch => {
@@ -12,32 +12,32 @@ function login(username, password) {
 
     try {
       // @DATAPEPS without
-      const user = await authService.login(username, password);
-      dispatch(success(user));
-      history.push("/");
+      // const user = await authService.login(username, password);
+      // dispatch(success(user));
+      // history.push("/");
       // @DATAPEPS with
-      // const connector = {
-      //   createSession: async (login, password) =>
-      //     await authService.login(login, password),
-      //   getToken: async user => user.token
-      // };
-      // const {
-      //   session: datapeps,
-      //   app: user,
-      //   new: firstTime
-      // } = await ApplicationAPI.createJWTSession(
-      //   config.dataPepsAppID,
-      //   username,
-      //   password,
-      //   connector
-      // );
-      // dispatch(success(user, datapeps));
-      // if (firstTime) {
-      //   dispatch(uiActions.openModal(uiConstants.DataPepsUpdate));
-      //   // history.push done after ChangePassword action
-      // } else {
-      //   history.push("/");
-      // }
+      const connector = {
+        createSession: async (login, password) =>
+          await authService.login(login, password),
+        getToken: async user => user.token
+      };
+      const {
+        session: datapeps,
+        app: user,
+        new: firstTime
+      } = await ApplicationAPI.createJWTSession(
+        config.dataPepsAppID,
+        username,
+        password,
+        connector
+      );
+      dispatch(success(user, datapeps));
+      if (firstTime) {
+        dispatch(uiActions.openModal(uiConstants.DataPepsUpdate));
+        // history.push done after ChangePassword action
+      } else {
+        history.push("/");
+      }
     } catch (error) {
       dispatch(failure(error));
       dispatch(uiActions.error(error));
@@ -48,13 +48,13 @@ function login(username, password) {
     return { type: authConstants.LOGIN_REQUEST };
   }
   // @DATAPEPS without
-  function success(user) {
-    return { type: authConstants.LOGIN_SUCCESS, user };
-  }
-  // @DATAPEPS with
-  // function success(user, datapeps) {
-  //   return { type: authConstants.LOGIN_SUCCESS, user, datapeps };
+  // function success(user) {
+  //   return { type: authConstants.LOGIN_SUCCESS, user };
   // }
+  // @DATAPEPS with
+  function success(user, datapeps) {
+    return { type: authConstants.LOGIN_SUCCESS, user, datapeps };
+  }
   function failure(error) {
     return { type: authConstants.LOGIN_FAILURE, error };
   }
@@ -72,12 +72,12 @@ function changePassword(p1, p2, modalName, datapeps) {
       dispatch(uiActions.closeModal(modalName));
       try {
         // @DATAPEPS without
-        await authService.updatePassword(p1);
+        // await authService.updatePassword(p1);
         // @DATAPEPS with
-        // await datapeps.renewKeys(p1);
-        // if (modalName === uiConstants.DataPepsUpdate) {
-        //   history.push("/");
-        // }
+        await datapeps.renewKeys(p1);
+        if (modalName === uiConstants.DataPepsUpdate) {
+          history.push("/");
+        }
         dispatch(success());
       } catch (e) {
         dispatch(failure(e));

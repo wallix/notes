@@ -15,6 +15,8 @@ Please refer to each directory README to build and run.
 
 Notes was built as a tutorial for the implementention of [End-to-End Encryption (E2EE)](https://en.wikipedia.org/wiki/End-to-end_encryption) with [DataPeps](https://github.com/wallix/datapeps-sdk-js). Thanks to E2EE, Notes will be strongly protected with encryption performed directly on client devices. Anyone that can access servers legally (admins, ...) or not (attackers, ...) will not be able to read user information.
 
+_This branch already has DataPeps support built-in. What was done from the parent commit is detailed below._
+
 Adding DataPeps support requires **no modification of the server code**. Only the `client/` needs to be updated.
 
 To add DataPeps support, awaiting the forthcoming blog post:
