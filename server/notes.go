@@ -1,0 +1,156 @@
+package main
+
+import (
+	"errors"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+)
+
+// Note represents a note
+type Note struct {
+	gorm.Model
+	Title      string
+	Content    string
+	Owner      string
+	Tags       string
+	SharedWith []*Login `gorm:"many2many:note_shared;"`
+}
+
+func (e *Env) getSharedNotes(c *gin.Context) {
+	var notes []Note
+	user, err := e.getUser(getOwner(c))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+
+	err = e.db.Model(&user).Related(&notes, "SharedNotes").Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"notes": notes})
+}
+
+func (e *Env) noteListHandler(c *gin.Context) {
+	var notes []Note
+
+	owner := getOwner(c)
+
+	err := e.db.Where("owner = ?", owner).Find(&notes).Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"notes": notes})
+}
+
+func (e *Env) noteGetHandler(c *gin.Context) {
+	var note Note
+	noteID := c.Param("id")
+	owner := getOwner(c)
+
+	err := e.db.Where("owner = ? AND id = ?", owner, noteID).First(&note).Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"note": note})
+}
+
+func (e *Env) noteShareHandler(c *gin.Context) {
+	var note Note
+	noteID := c.Param("id")
+	recipientID := c.Param("with")
+	owner := getOwner(c)
+	// must be owner to share
+	err := e.db.Where("owner = ? AND id = ?", owner, noteID).First(&note).Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	// get user to share with
+	login, err := e.getUser(recipientID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err})
+		return
+	}
+	// append user
+	err = e.db.Model(&note).Association("SharedWith").Append(login).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func validateNote(note Note) error {
+	if note.Title == "" {
+		return errors.New("empty title")
+	}
+	return nil
+}
+
+func (e *Env) createOrUpdateNote(noteID string, note *Note) error {
+	// create new note
+	if noteID == "" {
+		return e.db.Create(&note).Error
+	}
+	// or update previous note
+	var previous Note
+	e.db.Where("ID = ?", noteID).First(&previous)
+	previous.Title = note.Title
+	previous.Content = note.Content
+	previous.Tags = note.Tags
+	return e.db.Save(&previous).Error
+}
+
+// FIXME: returns noteID==0 when PATCH
+func (e *Env) notePostHandler(c *gin.Context) {
+	var err error
+	var note Note
+	c.ShouldBindJSON(&note)
+	err = validateNote(note)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err})
+		return
+	}
+
+	// set note owner
+	note.Owner = getOwner(c)
+	// get the (optional) id from path
+	noteID := c.Param("id")
+	// create or update the note
+	err = e.createOrUpdateNote(noteID, &note)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"noteID": note.ID,
+	})
+}
+
+func (e *Env) noteDelete(c *gin.Context) {
+	var note Note
+	// get owner and note id
+	owner := getOwner(c)
+	noteID := c.Param("id")
+	// retrieve the note
+	err := e.db.Where("owner = ? AND ID = ?", owner, noteID).First(&note).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
+		return
+	}
+	// delete the note
+	err = e.db.Delete(&note).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
+}

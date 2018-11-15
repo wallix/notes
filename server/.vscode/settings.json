@@ -1,0 +1,26 @@
+{
+    "cSpell.words": [
+        "authorizator",
+        "cors",
+        "genrsa",
+        "gonic",
+        "gorm",
+        "jinzhu",
+        "keypair",
+        "openssl",
+        "outform",
+        "priv",
+        "pubout",
+        "qor",
+        "sqlite",
+        "unscoped"
+    ],
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ]
+}
