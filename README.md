@@ -1,10 +1,12 @@
 # Notes
 
-Notes is simple note-taking application, which serves as a demo for [DataPeps](https://datapeps.com). This client is implemented with React, while the accompanying REST service is built with Go.
+Notes is simple note-taking application, which serves as a demo for [DataPeps](https://datapeps.com). This application may also be a good starter for anyone interested in the Go/React stack.
+
+![Mandatory screenshot](https://user-images.githubusercontent.com/33936597/50091011-69d4e800-020a-11e9-95dc-29cfa32e7c9b.png)
 
 # Directory structure
 
-- `/server` contains the server built with Go
+- `/server` contains a REST service built with Go and SQLite
 - `/client` contains a web client built with React
 
 Please refer to each directory README to build and run.
