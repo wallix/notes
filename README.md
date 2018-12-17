@@ -2,7 +2,7 @@
 
 Notes is simple note-taking application, which serves as a demo for [DataPeps](https://datapeps.com). This application may also be a good starter for anyone interested in the Go/React stack.
 
-![Mandatory screenshot](https://user-images.githubusercontent.com/33936597/50091011-69d4e800-020a-11e9-95dc-29cfa32e7c9b.png)
+![Mandatory screenshot](https://user-images.githubusercontent.com/33936597/50092430-604d7f00-020e-11e9-9284-7b2b142c7b5d.png)
 
 # Directory structure
 
