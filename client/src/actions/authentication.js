@@ -5,6 +5,7 @@ import { history } from "../history";
 // @DATAPEPS
 import { ApplicationAPI } from "datapeps-sdk";
 import config from "../config";
+import { SDKKind } from "datapeps-sdk/src/Error";
 
 function login(username, password) {
   return async dispatch => {
@@ -39,8 +40,23 @@ function login(username, password) {
         history.push("/");
       }
     } catch (error) {
-      dispatch(failure(error));
-      dispatch(uiActions.error(error));
+      if (error.kind) {
+        // Error come from pepsdk
+        switch (error.kind) {
+          case SDKKind.BadSecret:
+            const message = "incorrect Password";
+            dispatch(failure(message));
+            dispatch(uiActions.error(message));
+            break;
+          default:
+            dispatch(failure(error.message));
+            dispatch(uiActions.error(error.message));
+            break;
+        }
+      } else {
+        dispatch(failure(error));
+        dispatch(uiActions.error(error));
+      }
     }
   };
 

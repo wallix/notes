@@ -9,7 +9,7 @@ import { noteActions } from "../actions";
 
 class Note extends React.Component {
   constructor(props) {
-    super();
+    super(props);
     this.state = {
       Title: props.Title,
       Content: props.Content,
