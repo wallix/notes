@@ -1,10 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
+import { Modal, Button, Form, FormControl } from "react-bootstrap";
 
 // @DATAPEPS
 // import { clipID } from "datapeps-sdk";
 // import config from "../config";
+// import { Checkbox } from "react-bootstrap";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
@@ -84,6 +85,7 @@ class NewNote extends React.Component {
               onClick={this.onAddNote}
               type="submit"
               disabled={!this.validate()}
+              data-test="save"
             >
               Save
             </Button>
