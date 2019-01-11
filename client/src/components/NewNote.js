@@ -69,6 +69,7 @@ class NewNote extends React.Component {
               />
               {/* @DATAPEPS */}
               <Checkbox
+                data-test="protected"
                 checked={this.state.protected}
                 onChange={this.changeProtection}
               >
