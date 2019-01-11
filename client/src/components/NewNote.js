@@ -63,6 +63,7 @@ class NewNote extends React.Component {
                 onChange={this.changeContent}
               />
               <Checkbox
+                data-test="protected"
                 checked={this.state.protected}
                 onChange={this.changeProtection}
               >
