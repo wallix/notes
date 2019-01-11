@@ -114,6 +114,7 @@ class UserProfile extends React.Component {
               Cancel
             </Button>
             <Button
+              data-test="create"
               bsStyle="primary"
               onClick={() => {
                 props.modalName === uiConstants.UserSubscribeModal

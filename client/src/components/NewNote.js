@@ -67,6 +67,7 @@ class NewNote extends React.Component {
               onClick={this.onAddNote}
               type="submit"
               disabled={!this.validate()}
+              data-test="save"
             >
               Save
             </Button>

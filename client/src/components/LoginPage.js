@@ -111,7 +111,9 @@ class LoginPage extends React.Component {
                   )}
                 </div>
                 <div className="form-group">
-                  <button className="btn btn-primary">Login</button>
+                  <button className="btn btn-primary" data-test="login-btn">
+                    Login
+                  </button>
                 </div>
               </form>
             </Panel.Body>
