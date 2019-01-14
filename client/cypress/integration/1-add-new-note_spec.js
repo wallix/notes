@@ -1,10 +1,10 @@
 /// <reference types="Cypress" />
 
-describe("My First Test", function() {
+describe("My First Test", function () {
   const username = `alice`;
   const password = `password1234=?`;
 
-  it("Alice create an account", function() {
+  it("Alice create an account", function () {
     cy.visit("http://localhost:3000");
     cy.contains("Create an account").click();
 
@@ -17,7 +17,7 @@ describe("My First Test", function() {
     cy.get('[data-test="create"]').click();
   });
 
-  it("Alice sign in", function() {
+  it("Alice sign in", function () {
     cy.visit("http://localhost:3000");
 
     cy.get('[name="username"]').type(username);
@@ -29,15 +29,15 @@ describe("My First Test", function() {
     cy.get('[name="title"]').type("New note");
     cy.get('[name="content"]').type(
       "Here is a new note " +
-        new Intl.DateTimeFormat("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          hour12: false
-        }).format(new Date())
+      new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        hour12: false
+      }).format(new Date())
     );
     cy.get('[data-test="save"]').click();
   });
