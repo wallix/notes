@@ -43,6 +43,7 @@ jobs:
           root: ./
           paths:
             - ./client
+            - ./server
   test-e2e:
     docker:
       - image: cypress/base:10

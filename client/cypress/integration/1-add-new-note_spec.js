@@ -36,6 +36,8 @@ describe("My First Test", function() {
     cy.get('[name="password"]').type(password);
     cy.get('[data-test="login-btn"]').click();
 
+    cy.contains("DataPepsError").should("not.exist");
+
     cy.get("div.modal-content").then(modalNewPassword => {
       if (modalNewPassword.find('[name="password1"]').length > 0) {
         cy.get('[name="password1"]').type(password2);
