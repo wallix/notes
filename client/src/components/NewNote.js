@@ -4,7 +4,6 @@ import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
 
 // @DATAPEPS
 import { clipID } from "datapeps-sdk";
-import config from "../config";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
@@ -103,7 +102,7 @@ class NewNote extends React.Component {
         "note",
         {
           description: title,
-          URI: `${config.apiUrl}/auth/notes`,
+          URI: `${process.env.REACT_APP_API_URL}/auth/notes`,
           MIMEType: "text/plain"
         },
         [datapeps.login]

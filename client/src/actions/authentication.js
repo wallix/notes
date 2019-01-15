@@ -4,7 +4,6 @@ import { uiActions } from "./index";
 import { history } from "../history";
 // @DATAPEPS
 import { ApplicationAPI } from "datapeps-sdk";
-import config from "../config";
 
 function login(username, password) {
   return async dispatch => {
@@ -26,7 +25,7 @@ function login(username, password) {
         app: user,
         new: firstTime
       } = await ApplicationAPI.createJWTSession(
-        config.dataPepsAppID,
+        process.env.REACT_APP_DATAPEPS_APP_ID,
         username,
         password,
         connector

@@ -1,4 +1,3 @@
-import config from "../config";
 import { parseJWT } from "../utils";
 
 export const authService = {
@@ -24,7 +23,10 @@ async function login(username, password) {
     body: JSON.stringify({ username, password })
   };
 
-  const response = await fetch(`${config.apiUrl}/login`, requestOptions);
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/login`,
+    requestOptions
+  );
   const user = await handleResponse(response);
   if (user.token) {
     localStorage.setItem("user", JSON.stringify(user));
@@ -75,7 +77,10 @@ async function subscribe(username, password) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password })
   };
-  const response = await fetch(`${config.apiUrl}/subscribe`, requestOptions);
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/subscribe`,
+    requestOptions
+  );
   return handleResponse(response);
 }
 
@@ -88,7 +93,7 @@ async function updatePassword(password) {
     body: JSON.stringify({ username: username, password: password })
   };
   const response = await fetch(
-    `${config.apiUrl}/auth/update/password`,
+    `${process.env.REACT_APP_API_URL}/auth/update/password`,
     requestOptions
   );
   return handleResponse(response);
@@ -102,7 +107,10 @@ async function getNotes() {
     headers: authHeader(false)
   };
 
-  const response = await fetch(`${config.apiUrl}/auth/notes`, requestOptions);
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/notes`,
+    requestOptions
+  );
   return handleResponse(response);
 }
 
@@ -113,7 +121,7 @@ async function getSharedNotes() {
   };
 
   const response = await fetch(
-    `${config.apiUrl}/auth/share/notes`,
+    `${process.env.REACT_APP_API_URL}/auth/share/notes`,
     requestOptions
   );
   return handleResponse(response);
@@ -126,7 +134,10 @@ async function postNote(note) {
     body: JSON.stringify(note)
   };
 
-  const response = await fetch(`${config.apiUrl}/auth/notes`, requestOptions);
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/notes`,
+    requestOptions
+  );
   return handleResponse(response);
 }
 
@@ -137,7 +148,7 @@ async function deleteNote(id) {
   };
 
   const response = await fetch(
-    `${config.apiUrl}/auth/notes/${id}`,
+    `${process.env.REACT_APP_API_URL}/auth/notes/${id}`,
     requestOptions
   );
   return handleResponse(response);
