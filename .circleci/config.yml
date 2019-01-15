@@ -13,7 +13,7 @@ jobs:
           root: ./
           paths:
             - ./server
-  build-client:
+  client-install:
     docker:
       - image: circleci/node:11
     working_directory: /home/circleci/notes
@@ -22,11 +22,28 @@ jobs:
       - attach_workspace:
           at: ./
       - run: npm ci --prefix client
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - ./client
+  create-app:
+    docker:
+      - image: circleci/node:11
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          command: |
+            cd server
+            openssl genrsa -out key.pem 2048
+            openssl rsa -in key.pem -outform PEM -pubout -out public.pem
+      - run: node client/scripts/setup.js
       - run: npm run build --prefix client
       - persist_to_workspace:
           root: ./
           paths:
             - ./client
+            - ./server
   test-e2e:
     docker:
       - image: cypress/base:10
@@ -36,11 +53,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ./
-      - run:
-          command: |
-            cd server
-            openssl genrsa -out key.pem 2048
-            openssl rsa -in key.pem -outform PEM -pubout -out public.pem
       - run:
           command: |
             ( cd server ; ./server & )
@@ -55,8 +67,11 @@ workflows:
   build:
     jobs:
       - build-server
-      - build-client
-      - test-e2e:
+      - client-install
+      - create-app:
           requires:
             - build-server
-            - build-client
+            - client-install
+      - test-e2e:
+          requires:
+            - create-app
