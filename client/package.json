@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "react-scripts": "^2.0.5"
+    "react-scripts": "^2.0.5",
+    "xhr2": "^0.1.4",
+    "atob": "^2.1.2",
+    "btoa": "^1.1.2",
+    "ws": "^3.3.2"
   },
   "dependencies": {
     "datapeps-sdk": "0.0.41",
