@@ -62,28 +62,47 @@ class UserProfile extends React.Component {
                 ? "User Profile"
                 : props.modalName === uiConstants.UserSubscribeModal
                 ? "Create Account"
+                : props.modalName === uiConstants.DataPepsUpdate
+                ? "Update Your Password"
                 : "?"}
             </Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
-            <div>
-              <h4>Username</h4>
-              <Form>
-                <FormControl
-                  type="text"
-                  name="username"
-                  disabled={props.user}
-                  onChange={this.changeUsername}
-                  {...userValue}
-                />
-                <FormControl.Static>
-                  {!props.user && this.check() === 1
-                    ? "Username can't be empty"
-                    : ""}
-                </FormControl.Static>
-              </Form>
-            </div>
+            {props.modalName === uiConstants.DataPepsUpdate ? (
+              <div>
+                <p>
+                  Notes now uses{" "}
+                  <a href="https://en.wikipedia.org/wiki/End-to-end_encryption">
+                    end-to-end encryption
+                  </a>{" "}
+                  with <a href="https://datapeps.com">DataPeps</a> to protect
+                  your data!
+                </p>
+                <p>
+                  Please update your password to automatically use encryption
+                  for your notes.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h4>Username</h4>
+                <Form>
+                  <FormControl
+                    type="text"
+                    name="username"
+                    disabled={props.user}
+                    onChange={this.changeUsername}
+                    {...userValue}
+                  />
+                  <FormControl.Static>
+                    {!props.user && this.check() === 1
+                      ? "Username can't be empty"
+                      : ""}
+                  </FormControl.Static>
+                </Form>
+              </div>
+            )}
             <h4>
               {props.modalName === uiConstants.UserSubscribeModal
                 ? "Password"
@@ -126,7 +145,8 @@ class UserProfile extends React.Component {
                   : props.changePassword(
                       this.state.password1,
                       this.state.password2,
-                      props.modalName
+                      props.modalName,
+                      props.datapeps
                     );
               }}
               disabled={this.check() !== 0}
@@ -144,7 +164,8 @@ class UserProfile extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  modals: state.modals.modals
+  modals: state.modals.modals,
+  datapeps: state.authentication.datapeps
 });
 const mapDispatchToProps = {
   ...uiActions,

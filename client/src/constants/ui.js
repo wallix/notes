@@ -9,5 +9,6 @@ export const uiConstants = {
   CLOSE_MODAL: "CLOSE_MODAL",
   NewNoteModal: "NEW_NOTE",
   ChangePasswordModal: "CHANGE_PASSWORD",
-  UserSubscribeModal: "USER_SUBSCRIBE"
+  UserSubscribeModal: "USER_SUBSCRIBE",
+  DataPepsUpdate: "DATAPEPS_UPDATE"
 };

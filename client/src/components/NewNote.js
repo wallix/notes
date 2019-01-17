@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Form, FormControl } from "react-bootstrap";
+import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
+import { clipID } from "datapeps-sdk";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
@@ -11,12 +12,14 @@ class NewNote extends React.Component {
 
     this.changeTitle = this.changeTitle.bind(this);
     this.changeContent = this.changeContent.bind(this);
+    this.changeProtection = this.changeProtection.bind(this);
     this.validate = this.validate.bind(this);
     this.onAddNote = this.onAddNote.bind(this);
 
     this.state = {
       title: "",
-      content: ""
+      content: "",
+      protected: true
     };
   }
 
@@ -25,6 +28,9 @@ class NewNote extends React.Component {
   }
   changeContent(e) {
     this.setState({ content: e.target.value });
+  }
+  changeProtection(e) {
+    this.setState({ protected: e.target.checked });
   }
   validate() {
     return this.state.title !== "";
@@ -56,6 +62,12 @@ class NewNote extends React.Component {
                 name="content"
                 onChange={this.changeContent}
               />
+              <Checkbox
+                checked={this.state.protected}
+                onChange={this.changeProtection}
+              >
+                Protected
+              </Checkbox>
             </Form>
           </Modal.Body>
           <Modal.Footer>
@@ -80,12 +92,28 @@ class NewNote extends React.Component {
   async onAddNote() {
     let title = this.state.title;
     let content = this.state.content;
+    if (this.state.protected) {
+      const { datapeps } = this.props;
+      const resource = await datapeps.Resource.create(
+        "note",
+        {
+          description: title,
+          URI: `${process.env.REACT_APP_API_URL}/auth/notes`,
+          MIMEType: "text/plain"
+        },
+        [datapeps.login]
+      );
+      title = resource.encrypt(title);
+      title = clipID(resource.id, title);
+      content = resource.encrypt(content);
+    }
     this.props.addNote(title, content);
   }
 }
 
 const mapStateToProps = state => ({
-  modals: state.modals.modals
+  modals: state.modals.modals,
+  datapeps: state.authentication.datapeps
 });
 const mapDispatchToProps = {
   ...uiActions,

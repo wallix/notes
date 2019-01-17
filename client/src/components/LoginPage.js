@@ -47,6 +47,7 @@ class LoginPage extends React.Component {
     return (
       <div>
         <UserProfile modalName={uiConstants.UserSubscribeModal} />
+        <UserProfile modalName={uiConstants.DataPepsUpdate} />
         <Jumbotron>
           <div className="container">
             <h1>Notes</h1>
