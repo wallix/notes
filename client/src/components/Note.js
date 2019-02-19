@@ -2,7 +2,8 @@ import React from "react";
 import { Panel, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import { noteActions } from "../actions";
-import { unclipID } from "datapeps-sdk";
+import { ID } from "datapeps-sdk";
+import { ResourceAPI } from "datapeps-sdk";
 
 class Note extends React.Component {
   constructor(props) {
@@ -42,8 +43,8 @@ class Note extends React.Component {
   async decryptNote() {
     try {
       const { datapeps } = this.props;
-      const { id, data: encryptedTitle } = unclipID(this.state.Title);
-      const resource = await datapeps.Resource.get(id);
+      const { id, data: encryptedTitle } = ID.unclip(this.state.Title);
+      const resource = await new ResourceAPI(datapeps).get(id);
       const Title = resource.decrypt(encryptedTitle);
       const Content = resource.decrypt(this.state.Content);
       this.setState({ ...this.state, Title, Content, style: "warning" });

@@ -1,7 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
-import { clipID } from "datapeps-sdk";
+import { ID } from "datapeps-sdk";
+import { ResourceAPI } from "datapeps-sdk";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
@@ -95,7 +96,7 @@ class NewNote extends React.Component {
     let content = this.state.content;
     if (this.state.protected) {
       const { datapeps } = this.props;
-      const resource = await datapeps.Resource.create(
+      const resource = await new ResourceAPI(datapeps).create(
         "note",
         {
           description: title,
@@ -105,7 +106,7 @@ class NewNote extends React.Component {
         [datapeps.login]
       );
       title = resource.encrypt(title);
-      title = clipID(resource.id, title);
+      title = ID.clip(resource.id, title);
       content = resource.encrypt(content);
     }
     this.props.addNote(title, content);

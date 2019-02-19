@@ -2,7 +2,7 @@ import { authConstants, uiConstants } from "../constants";
 import { authService } from "../services";
 import { uiActions } from "./index";
 import { history } from "../history";
-import { ApplicationAPI } from "datapeps-sdk";
+import { ApplicationJWT } from "datapeps-sdk";
 import { SDKError } from "datapeps-sdk";
 
 function login(username, password) {
@@ -19,7 +19,7 @@ function login(username, password) {
         session: datapeps,
         app: user,
         new: firstTime
-      } = await ApplicationAPI.createJWTSession(
+      } = await ApplicationJWT.createSession(
         process.env.REACT_APP_DATAPEPS_APP_ID,
         username,
         password,

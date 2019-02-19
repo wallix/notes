@@ -1,21 +1,9 @@
 /// <reference types="Node" />
-if (global["TextEncoder"] === undefined) {
-  global["TextEncoder"] = require("text-encoding").TextEncoder;
+if (global["fetch"] === undefined) {
+  global["fetch"] = require("node-fetch");
 }
-if (global["TextDecoder"] === undefined) {
-  global["TextDecoder"] = require("text-encoding").TextDecoder;
-}
-if (global["btoa"] === undefined) {
-  global["btoa"] = require("btoa");
-}
-if (global["atob"] === undefined) {
-  global["atob"] = require("atob");
-}
-if (global["XMLHttpRequest"] === undefined) {
-  global["XMLHttpRequest"] = require("xhr2");
-}
-if (global["WebSocket"] === undefined) {
-  global["WebSocket"] = require("ws");
+if (global["Headers"] === undefined) {
+  global["Headers"] = require("node-fetch").Headers;
 }
 
 const DataPeps = require("datapeps-sdk");
@@ -41,11 +29,11 @@ const createApp = async () => {
 
   const loginApp = "Notes.tmp." + seed;
 
-  let session = await DataPeps.login(login, password);
+  let session = await DataPeps.Session.login(login, password);
   let created = false;
 
   try {
-    await session.Identity.create(
+    await new DataPeps.IdentityAPI(session).create(
       {
         login: loginApp,
         kind: "pepsswarm/3",
@@ -76,10 +64,12 @@ const createApp = async () => {
     `REACT_APP_DATAPEPS_APP_ID=${loginApp}`
   );
 
-  await session.Application.putConfig(loginApp, {
-    key: new TextEncoder().encode(key),
-    signAlgorithm: DataPeps.ApplicationJwtAlgorithm.RS256,
-    claimForLogin: "id"
+  await new DataPeps.ApplicationAPI(session).putConfig(loginApp, {
+    jwt: {
+      key: new TextEncoder().encode(key),
+      signAlgorithm: DataPeps.ApplicationJWT.Algorithm.RS256,
+      claimForLogin: "id"
+    }
   });
 
   return { login: loginApp, success: true, created };
