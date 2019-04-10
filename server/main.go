@@ -62,6 +62,8 @@ func (e *Env) httpEngine() *gin.Engine {
 		auth.PATCH("/notes/:id", e.notePostHandler)
 		auth.DELETE("/notes/:id", e.noteDelete)
 
+		auth.GET("/users", e.userListHandler)
+
 		auth.POST("/share/:id/:with", e.noteShareHandler)
 		auth.GET("/share/notes", e.getSharedNotes)
 	}

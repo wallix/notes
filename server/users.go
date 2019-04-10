@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	jwt "github.com/appleboy/gin-jwt"
@@ -66,4 +67,27 @@ func (e *Env) subscribeHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "user created", "userID": login.ID})
+}
+
+func (e *Env) userListHandler(c *gin.Context) {
+	var usernames []string
+	search := c.Query("search")
+
+	req := e.db.Model(&Login{}).
+		Where("deleted_at IS NULL")
+
+	if len(search) > 0 {
+		req = req.Where("username LIKE ?",
+			fmt.Sprintf("%%%s%%", search))
+	}
+
+	err := req.
+		Order("created_at").
+		Pluck("username", &usernames).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"users": usernames})
 }

@@ -135,6 +135,81 @@ func TestCreateUserAndLogInPostAndGetNotes(t *testing.T) {
 	}
 }
 
+func TestUserListing(t *testing.T) {
+	var err error
+	user1 := map[string]interface{}{
+		"username": "toto_for_listing",
+		"password": "totopass",
+	}
+	user2 := map[string]interface{}{
+		"username": "titi_for_listing",
+		"password": "titipass",
+	}
+	// create 2 users
+	_, err = postJSON(t, "/subscribe", user1, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	_, err = postJSON(t, "/subscribe", user2, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+
+	// login
+	result, err := postJSON(t, "/login", user1, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	token := result["token"].(string)
+
+	result, err = getJSON(t, "/auth/users", token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+
+	if _, ok := result["err"].([]interface{}); ok {
+		t.Fatalf("I should not receive error %+v", result)
+	}
+
+	if users, ok := result["users"].([]interface{}); ok {
+		if len(users) < 2 {
+			t.Fatalf("User list should contains at least 2 users")
+		}
+
+		user1Received := false
+		user2Received := false
+
+		for _, u := range users {
+			if u.(string) == user1["username"].(string) {
+				user1Received = true
+			}
+			if u.(string) == user2["username"].(string) {
+				user2Received = true
+			}
+		}
+
+		if !user1Received {
+			t.Fatalf("User list should contains user1")
+		}
+		if !user2Received {
+			t.Fatalf("User list should contains user2")
+		}
+	} else {
+		t.Fatalf("I should not receive %+v", result)
+	}
+
+	result, err = getJSON(t, "/auth/users?search=titi", token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+
+	users := result["users"].([]interface{})
+	if len(users) < 1 {
+		t.Fatalf("Expect to receive at least one titi")
+	}
+
+}
+
 func TestNoteSharing(t *testing.T) {
 	var err error
 	user1 := map[string]interface{}{
