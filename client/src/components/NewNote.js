@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
 import { ID } from "datapeps-sdk";
 import { ResourceAPI } from "datapeps-sdk";
+import ShareSelect from "./ShareSelect";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
@@ -14,13 +15,15 @@ class NewNote extends React.Component {
     this.changeTitle = this.changeTitle.bind(this);
     this.changeContent = this.changeContent.bind(this);
     this.changeProtection = this.changeProtection.bind(this);
+    this.changeSharingGroup = this.changeSharingGroup.bind(this);
     this.validate = this.validate.bind(this);
     this.onAddNote = this.onAddNote.bind(this);
 
     this.state = {
       title: "",
       content: "",
-      protected: true
+      protected: true,
+      sharingList: []
     };
   }
 
@@ -32,6 +35,9 @@ class NewNote extends React.Component {
   }
   changeProtection(e) {
     this.setState({ protected: e.target.checked });
+  }
+  changeSharingGroup(list) {
+    this.setState({ sharingList: list });
   }
   validate() {
     return this.state.title !== "";
@@ -70,6 +76,7 @@ class NewNote extends React.Component {
               >
                 Protected
               </Checkbox>
+              <ShareSelect onChange={this.changeSharingGroup} />
             </Form>
           </Modal.Body>
           <Modal.Footer>
@@ -103,7 +110,12 @@ class NewNote extends React.Component {
           URI: `${process.env.REACT_APP_API_URL}/auth/notes`,
           MIMEType: "text/plain"
         },
-        [datapeps.login]
+        [
+          datapeps.login,
+          ...this.state.sharingList.map(
+            u => `${u}@${process.env.REACT_APP_DATAPEPS_APP_ID}`
+          )
+        ]
       );
       title = resource.encrypt(title);
       title = ID.clip(resource.id, title);

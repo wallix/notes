@@ -17,7 +17,7 @@ if (process.env.PEPSCRYPTO_HOST) {
   DataPeps.configure(APIHost);
 }
 
-const login = process.env.DATAPEPS_LOGIN || "myprivatenotes.tester";
+const login = process.env.DATAPEPS_LOGIN || "cypress.tester";
 const password = process.env.DATAPEPS_PASSWORD || "Azertyuiop33";
 
 const createApp = async () => {
@@ -27,7 +27,7 @@ const createApp = async () => {
   shasum.update(key);
   const seed = shasum.digest("hex").substring(0, 8);
 
-  const loginApp = "Notes.tmp." + seed;
+  const loginApp = "Notes." + seed;
 
   let session = await DataPeps.Session.login(login, password);
   let created = false;

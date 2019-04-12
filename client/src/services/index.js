@@ -14,6 +14,10 @@ export const notesService = {
   deleteNote
 };
 
+export const usersService = {
+  getUsers
+};
+
 // login and logout
 
 async function login(username, password) {
@@ -149,6 +153,26 @@ async function deleteNote(id) {
 
   const response = await fetch(
     `${process.env.REACT_APP_API_URL}/auth/notes/${id}`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
+// Users API functions
+
+async function getUsers(search = "") {
+  const requestOptions = {
+    method: "GET",
+    headers: authHeader(false)
+  };
+
+  let query = "";
+  if (search !== "") {
+    query = `?search=${search}`;
+  }
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/users${query}`,
     requestOptions
   );
   return handleResponse(response);

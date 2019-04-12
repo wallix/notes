@@ -5,7 +5,7 @@ import { LinkContainer } from "react-router-bootstrap";
 
 import { parseJWT } from "../utils";
 import { uiConstants } from "../constants";
-import { uiActions } from "../actions";
+import { uiActions, usersActions } from "../actions";
 import NewNote from "./NewNote";
 import UserProfile from "./UserProfile";
 
@@ -28,11 +28,12 @@ class Navigation extends React.Component {
           <Navbar.Collapse>
             <Navbar.Form pullLeft>
               <Button
-                onClick={() =>
+                onClick={() => {
                   this.props.dispatch(
                     uiActions.openModal(uiConstants.NewNoteModal)
-                  )
-                }
+                  );
+                  this.props.dispatch(usersActions.getList());
+                }}
               >
                 New Note
               </Button>

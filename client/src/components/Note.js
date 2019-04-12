@@ -11,7 +11,8 @@ class Note extends React.Component {
     this.state = {
       Title: props.Title,
       Content: props.Content,
-      style: "info"
+      style: "info",
+      SharingGroup: []
     };
   }
 
@@ -44,10 +45,19 @@ class Note extends React.Component {
     try {
       const { datapeps } = this.props;
       const { id, data: encryptedTitle } = ID.unclip(this.state.Title);
-      const resource = await new ResourceAPI(datapeps).get(id);
+      const rApi = new ResourceAPI(datapeps);
+      const resource = await rApi.get(id);
+      const sharingGroup = await rApi.getSharingGroup(id);
+      console.log(sharingGroup);
       const Title = resource.decrypt(encryptedTitle);
       const Content = resource.decrypt(this.state.Content);
-      this.setState({ ...this.state, Title, Content, style: "warning" });
+      this.setState({
+        ...this.state,
+        Title,
+        Content,
+        style: "warning",
+        sharingGroup: sharingGroup.map(s => s.identityID.login)
+      });
     } catch (err) {
       console.log("decryptNote: ", err);
     }
