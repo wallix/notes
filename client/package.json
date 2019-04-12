@@ -5,7 +5,13 @@
   "devDependencies": {
     "@types/node": "^11.13.2",
     "cypress": "^3.2.0",
-    "node-fetch": "^2.3.0"
+    "node-fetch": "^2.3.0",
+    "@storybook/react": "^5.0.6",
+    "@storybook/addon-actions": "^5.0.6",
+    "@storybook/addon-links": "^5.0.6",
+    "@storybook/addons": "^5.0.6",
+    "@babel/core": "^7.4.3",
+    "babel-loader": "^8.0.5"
   },
   "dependencies": {
     "datapeps-sdk": "^1.0.0-0",
@@ -27,7 +33,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
-    "test": "cypress run"
+    "test": "cypress run",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "browserslist": [
     ">0.2%",

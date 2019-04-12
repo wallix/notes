@@ -1,9 +1,9 @@
 import React from "react";
-import { Panel, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import { noteActions } from "../actions";
 import { ID } from "datapeps-sdk";
 import { ResourceAPI } from "datapeps-sdk";
+import { NoteLayout } from "./NoteLayout";
 
 class Note extends React.Component {
   constructor(props) {
@@ -18,23 +18,9 @@ class Note extends React.Component {
 
   render() {
     const { DeletedAt, ID, deleteNote } = this.props;
-    const { Title, Content } = this.state;
+    const { Title, Content, style } = this.state;
     return (
-      <Panel bsStyle={DeletedAt ? "danger" : this.state.style}>
-        {DeletedAt || (
-          <Button
-            bsStyle={this.state.style}
-            className="pull-right"
-            onClick={() => deleteNote(ID)}
-          >
-            &times;
-          </Button>
-        )}
-        <Panel.Heading>
-          <Panel.Title componentClass="h3">{Title}</Panel.Title>
-        </Panel.Heading>
-        <Panel.Body>{Content}</Panel.Body>
-      </Panel>
+      <NoteLayout {...{ DeletedAt, ID, deleteNote, Title, Content, style }} />
     );
   }
 
@@ -48,7 +34,6 @@ class Note extends React.Component {
       const rApi = new ResourceAPI(datapeps);
       const resource = await rApi.get(id);
       const sharingGroup = await rApi.getSharingGroup(id);
-      console.log(sharingGroup);
       const Title = resource.decrypt(encryptedTitle);
       const Content = resource.decrypt(this.state.Content);
       this.setState({

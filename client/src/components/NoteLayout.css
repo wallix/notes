@@ -1,0 +1,6 @@
+div.note-item .notshared {
+  color: lightgray;
+}
+div.note-item .shared {
+  color: #f0ad4e;
+}
