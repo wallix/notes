@@ -36,7 +36,7 @@ storiesOf("Note", module)
               Title: "A new encrypted and shared Note",
               Content: "Content of the encrypted and shared note",
               style: "warning",
-              sharingWith: ["toto", "tata"]
+              SharedWith: ["toto", "tata"]
             }}
           />
         </li>

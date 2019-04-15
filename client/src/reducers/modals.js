@@ -1,6 +1,7 @@
 import { uiConstants } from "../constants";
 const initialState = {
-  modals: []
+  modals: [],
+  payload: {}
 };
 
 export function modals(state = initialState, action) {
@@ -8,12 +9,14 @@ export function modals(state = initialState, action) {
     case uiConstants.OPEN_MODAL:
       return {
         ...state,
-        modals: state.modals.concat(action.id)
+        modals: state.modals.concat(action.id),
+        payload: action.payload
       };
     case uiConstants.CLOSE_MODAL:
       return {
         ...state,
-        modals: state.modals.filter(item => item !== action.id)
+        modals: state.modals.filter(item => item !== action.id),
+        payload: null
       };
     default:
       return state;

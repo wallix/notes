@@ -1,5 +1,6 @@
 import React from "react";
-import { Panel, Button } from "react-bootstrap";
+import { Panel, Button, Glyphicon } from "react-bootstrap";
+import "./NoteLayout.css";
 
 export const NoteLayout = ({
   DeletedAt,
@@ -8,7 +9,7 @@ export const NoteLayout = ({
   Title,
   Content,
   style,
-  sharingWith,
+  SharedWith,
   openShareModal
 }) => (
   <Panel className="note-item" bsStyle={DeletedAt ? "danger" : style}>
@@ -29,7 +30,7 @@ export const NoteLayout = ({
       <Button onClick={openShareModal}>
         <Glyphicon
           className={
-            sharingWith && sharingWith.length > 0 ? "shared" : "notshared"
+            SharedWith && SharedWith.length > 0 ? "shared" : "notshared"
           }
           glyph="share"
         />

@@ -1,6 +1,7 @@
 import { notesConstants, uiConstants } from "../constants";
 import { notesService } from "../services";
 import { uiActions } from "./ui";
+import { ResourceAPI } from "datapeps-sdk";
 
 function addNote(title, content) {
   return dispatch => {
@@ -88,8 +89,40 @@ function getNotes() {
   }
 }
 
+function getSharedWith(id, resourceId) {
+  return async (dispatch, getState) => {
+    dispatch(request());
+    const datapeps = getState().authentication.datapeps;
+    try {
+      const rApi = new ResourceAPI(datapeps);
+      const sharing = await rApi.getSharingGroup(resourceId);
+      dispatch(
+        success(
+          sharing.map(s => s.identityID.login).filter(l => l !== datapeps.login)
+        )
+      );
+    } catch (err) {
+      dispatch(failure(err));
+    }
+  };
+  function request() {
+    return { type: notesConstants.GETSHARING_REQUEST };
+  }
+  function success(grp) {
+    return {
+      type: notesConstants.GETSHARING_SUCCESS,
+      id,
+      sharedWith: grp
+    };
+  }
+  function failure(error) {
+    return { type: notesConstants.GETSHARING_FAILURE, error };
+  }
+}
+
 export const noteActions = {
   addNote,
   deleteNote,
-  getNotes
+  getNotes,
+  getSharedWith
 };

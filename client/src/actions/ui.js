@@ -20,16 +20,17 @@ function clear() {
   return { type: alertConstants.CLEAR };
 }
 
-function openModal(id) {
+function openModal(id, payload) {
   return {
     type: uiConstants.OPEN_MODAL,
-    id: id
+    id,
+    payload
   };
 }
 
 function closeModal(id) {
   return {
     type: uiConstants.CLOSE_MODAL,
-    id: id
+    id
   };
 }

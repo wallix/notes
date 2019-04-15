@@ -3,7 +3,7 @@
 describe("My First Test", function() {
   const time = new Date().getTime();
   const username = `alice${time}`;
-  // const username = `alice-test-2`; // DO NOT COMMIT
+  //const username = `alice-test-5`; // DO NOT COMMIT
 
   const password = `password1234=?`;
   const password2 = `password567=!`;
@@ -84,8 +84,10 @@ describe("My First Test", function() {
     cy.get('[name="password"]').type(password2);
     cy.get('[data-test="login-btn"]').click();
 
-    cy.get("#basic-nav-dropdown", { timeout: 10000 }).click();
-    cy.contains("Logout").click();
+    cy.contains("button", "New Note", { timeout: 30000 }).should("exist");
+
+    // cy.get("#basic-nav-dropdown", { timeout: 10000 }).click();
+    // cy.contains("Logout").click();
   });
 
   for (let i = 0; i < 2; i++) {
@@ -119,7 +121,7 @@ describe("My First Test", function() {
         }
       });
 
-      cy.contains("button", "New Note").click();
+      cy.contains("button", "New Note").should("exist");
     });
   }
 
@@ -141,7 +143,7 @@ describe("My First Test", function() {
     });
 
     cy.get("#ShareSelect > div > div:first-child").click();
-    cy.get("#ShareSelect input").type("alice.", { force: true });
+    cy.get("#ShareSelect input").type("alice.0", { force: true });
 
     cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").click();
 
@@ -158,5 +160,50 @@ describe("My First Test", function() {
     cy.contains("div.panel-body", encryptedContent, { timeout: 20000 }).should(
       "exist"
     );
+  });
+
+  it("Alice sign in with her new password, find her shared notes and extends share", function() {
+    cy.visit("http://localhost:3000");
+
+    cy.get('[name="username"]').type(username);
+    cy.get('[name="password"]').type(password2);
+    cy.get('[data-test="login-btn"]').click();
+
+    cy.contains("button", "New Note", { timeout: 30000 }).should("exist");
+
+    // Test if precedent title exists
+    cy.contains("div", "New note encrypted and shared", {
+      timeout: 30000
+    }).should("exist");
+
+    // Click on shared button
+    cy.get("span.shared", {
+      timeout: 30000
+    })
+      .eq(0)
+      .parent("button")
+      .click();
+
+    // Search alice.1
+    cy.get("#ShareSelect > div > div:first-child").click();
+    cy.get("#ShareSelect input").type("alice.1", { force: true });
+
+    cy.wait(2000);
+
+    cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").click();
+
+    cy.contains("Save").click();
+    cy.contains("Save").should("not.exist");
+
+    // Click on shared button
+    cy.get("span.shared", {
+      timeout: 30000
+    })
+      .eq(0)
+      .parent("button")
+      .click();
+
+    cy.contains("alice.1").should("exist");
+    cy.contains("Cancel").click();
   });
 });

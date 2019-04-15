@@ -1,9 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import { noteActions } from "../actions";
+import { noteActions, uiActions, usersActions } from "../actions";
 import { ID } from "datapeps-sdk";
 import { ResourceAPI } from "datapeps-sdk";
 import { NoteLayout } from "./NoteLayout";
+import { uiConstants } from "../constants";
 
 class Note extends React.Component {
   constructor(props) {
@@ -12,15 +13,33 @@ class Note extends React.Component {
       Title: props.Title,
       Content: props.Content,
       style: "info",
-      SharingGroup: []
+      resourceId: null
     };
   }
 
   render() {
-    const { DeletedAt, ID, deleteNote } = this.props;
+    const { DeletedAt, ID, deleteNote, SharedWith } = this.props;
     const { Title, Content, style } = this.state;
+
     return (
-      <NoteLayout {...{ DeletedAt, ID, deleteNote, Title, Content, style }} />
+      <NoteLayout
+        {...{
+          DeletedAt,
+          ID,
+          deleteNote,
+          Title,
+          Content,
+          style,
+          SharedWith,
+          openShareModal: () => {
+            this.props.getUserList();
+            this.props.openModal(uiConstants.ShareNoteModal, {
+              id: this.props.ID,
+              resourceId: this.state.resourceId
+            });
+          }
+        }}
+      />
     );
   }
 
@@ -33,16 +52,15 @@ class Note extends React.Component {
       const { id, data: encryptedTitle } = ID.unclip(this.state.Title);
       const rApi = new ResourceAPI(datapeps);
       const resource = await rApi.get(id);
-      const sharingGroup = await rApi.getSharingGroup(id);
       const Title = resource.decrypt(encryptedTitle);
       const Content = resource.decrypt(this.state.Content);
       this.setState({
-        ...this.state,
         Title,
         Content,
         style: "warning",
-        sharingGroup: sharingGroup.map(s => s.identityID.login)
+        resourceId: id
       });
+      this.props.getSharedWith(this.props.ID, id);
     } catch (err) {
       console.log("decryptNote: ", err);
     }
@@ -53,7 +71,9 @@ const mapStateToProps = state => ({
   datapeps: state.authentication.datapeps
 });
 const mapDispatchToProps = {
-  ...noteActions
+  ...noteActions,
+  ...uiActions,
+  getUserList: usersActions.getList
 };
 
 export default connect(

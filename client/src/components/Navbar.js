@@ -7,6 +7,7 @@ import { parseJWT } from "../utils";
 import { uiConstants } from "../constants";
 import { uiActions, usersActions } from "../actions";
 import NewNote from "./NewNote";
+import ShareNote from "./ShareNote";
 import UserProfile from "./UserProfile";
 
 class Navigation extends React.Component {
@@ -17,6 +18,7 @@ class Navigation extends React.Component {
     return (
       <div>
         <NewNote />
+        <ShareNote />
         <UserProfile user={user} modalName={uiConstants.ChangePasswordModal} />
         <Navbar collapseOnSelect>
           <Navbar.Header>
