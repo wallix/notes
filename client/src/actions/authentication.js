@@ -36,8 +36,8 @@ function login(username, password) {
       if (error.kind) {
         // Error come from pepsdk
         switch (error.kind) {
-          case SDKError.BadSecret:
-            const message = "incorrect Password";
+          case SDKError.IdentityInvalidKeySet:
+            const message = "Incorrect Password";
             dispatch(failure(message));
             dispatch(uiActions.error(message));
             break;
@@ -93,7 +93,7 @@ function changePassword(p1, p2, modalName, datapeps) {
     return { type: authConstants.CHANGE_SUCCESS };
   }
   function failure(error) {
-    return { type: authConstants.CHANGE_ERROR, error };
+    return { type: authConstants.CHANGE_FAILURE, error };
   }
 }
 
@@ -114,7 +114,7 @@ function subscribe(username, p1, p2) {
     return { type: authConstants.SUBSCRIBE_SUCCESS };
   }
   function failure(error) {
-    return { type: authConstants.SUBSCRIBE_ERROR, error };
+    return { type: authConstants.SUBSCRIBE_FAILURE, error };
   }
 }
 
