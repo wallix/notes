@@ -22,7 +22,8 @@ storiesOf("Note", module)
               ID: 0,
               Title: "A new Note",
               Content: "Content of the note",
-              style: "info"
+              style: "info",
+              deleteNote: () => {}
             }}
           />
         </li>
@@ -36,7 +37,8 @@ storiesOf("Note", module)
               Title: "A new encrypted and shared Note",
               Content: "Content of the encrypted and shared note",
               style: "warning",
-              SharedWith: ["toto", "tata"]
+              SharedWith: ["toto", "tata"],
+              deleteNote: () => {}
             }}
           />
         </li>
