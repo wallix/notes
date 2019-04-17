@@ -1,8 +1,14 @@
 /// <reference types="Cypress" />
 
-describe("My First Test", function() {
-  const time = new Date().getTime();
-  const username = `alice${time}`;
+const crypto = require("crypto"),
+  shasum = crypto.createHash("sha1");
+
+shasum.update(new Date().getTime() + "");
+
+const seed = shasum.digest("hex").substring(0, 5);
+
+describe(`Notes creation ${seed}`, function() {
+  const username = `alice.${seed}`;
   // const username = `alice-test-6`; // DO NOT COMMIT
 
   const password = `password1234=?`;
@@ -91,33 +97,37 @@ describe("My First Test", function() {
     // cy.contains("Logout").click();
   });
 
-  for (let i = 0; i < 2; i++) {
-    it(`Alice.${i} create her account if not exists`, function() {
-      cy.visit("/");
+  for (let name of ["alice", "bob"]) {
+    for (let i = 0; i < 2; i++) {
+      it(`${name}.${i} create her account if not exists`, function() {
+        cy.visit("/");
 
-      let login = `alice.${i}${time}`;
+        let login = `${name}.${i}.${seed}`;
 
-      cy.contains("Create an account").click();
-      cy.get('.modal-body [name="username"]').type(login);
-      cy.get('[name="password1"]').type(password);
-      cy.get('[name="password2"]').type(password);
-      cy.get('[data-test="create"]').click();
+        cy.contains("Create an account").click();
+        cy.get('.modal-body [name="username"]').type(login);
+        cy.get('[name="password1"]').type(password);
+        cy.get('[name="password2"]').type(password);
+        cy.get('[data-test="create"]').click();
 
-      // login
-      cy.get('.panel-body [name="username"]').type(login);
-      cy.get('[name="password"]').type(password);
-      cy.get('[data-test="login-btn"]').click();
+        // login
+        cy.get('.panel-body [name="username"]').type(login);
+        cy.get('[name="password"]').type(password);
+        cy.get('[data-test="login-btn"]').click();
 
-      cy.get("div.modal-content", { timeout: 30000 }).then(modalNewPassword => {
-        if (modalNewPassword.find('[name="password1"]').length > 0) {
-          cy.get('[name="password1"]').type(password2);
-          cy.get('[name="password2"]').type(password2);
-          cy.get('[data-test="create"]').click();
-        }
+        cy.get("div.modal-content", { timeout: 30000 }).then(
+          modalNewPassword => {
+            if (modalNewPassword.find('[name="password1"]').length > 0) {
+              cy.get('[name="password1"]').type(password2);
+              cy.get('[name="password2"]').type(password2);
+              cy.get('[data-test="create"]').click();
+            }
+          }
+        );
+
+        cy.contains("button", "New Note").should("exist");
       });
-
-      cy.contains("button", "New Note").should("exist");
-    });
+    }
   }
 
   it("Alice sign in and share a new note", function() {
