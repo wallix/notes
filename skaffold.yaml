@@ -1,0 +1,14 @@
+apiVersion: skaffold/v1beta8
+kind: Config
+build:
+  artifacts:
+    - image: note-client
+      context: client
+    - image: note-server
+      context: server
+  tagPolicy:
+    sha256: {}
+deploy:
+  kubectl:
+    manifests:
+      - k8s/*.yaml
