@@ -19,8 +19,11 @@ const store = createStore(
   applyMiddleware(thunkMiddleware, loggerMiddleware)
 );
 
-if (process.env.REACT_APP_DATAPEPS_API != null) {
-  DataPeps.configure(process.env.REACT_APP_DATAPEPS_API);
+const DATAPEPS_API =
+  window._env_.DATAPEPS_API || process.env.REACT_APP_DATAPEPS_API;
+
+if (DATAPEPS_API) {
+  DataPeps.configure(DATAPEPS_API);
 }
 
 render(

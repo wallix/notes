@@ -1,3 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: client-env-config
+data:
+  env-config.js: |
+    window._env_ = {"API_URL":"localhost:5081","DATAPEPS_API":"localhost:4443"};
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,27 +21,36 @@ spec:
         app: note-client
     spec:
       containers:
-      - name: note-client
-        image: node-frontend
-        resources:
-          requests:
-            memory: "32Mi"
-            cpu: "100m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 8080
+        - name: note-client
+          image: note-client
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: config-vol
+              mountPath: /build/static/etc/env-config.js
+              subPath: env-config.js
+              readOnly: true
+      volumes:
+        - name: config-vol
+          configMap:
+            name: client-env-config
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: note-client-service
+  name: note-client
 spec:
   type: LoadBalancer
   selector:
     app: note-client
   ports:
-  - port: 3000
-    targetPort: 8080
-
+    - port: 5080
+      targetPort: 5000

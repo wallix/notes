@@ -7,10 +7,13 @@ ADD package-lock.json .
 RUN npm ci --only=prod
 
 ADD . /home/node
-RUN npm run build
 
-FROM node:11-alpine
-RUN npm install -g serve
-COPY --from=0 /home/node/build /build
+CMD ["PORT=5000", "npm", "run", "start"]
 
-ENTRYPOINT [ "serve", "-s", "build" ]
+# RUN npm run build
+
+# FROM node:11-alpine
+# RUN npm install -g serve
+# COPY --from=0 /home/node/build /build
+
+# ENTRYPOINT [ "serve", "-s", "build" ]

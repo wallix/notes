@@ -18,6 +18,8 @@ export const usersService = {
   getUsers
 };
 
+const API_URL = window._env_.API_URL || process.env.REACT_APP_API_URL;
+
 // login and logout
 
 async function login(username, password) {
@@ -27,10 +29,7 @@ async function login(username, password) {
     body: JSON.stringify({ username, password })
   };
 
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/login`,
-    requestOptions
-  );
+  const response = await fetch(`${API_URL}/login`, requestOptions);
   const user = await handleResponse(response);
   if (user.token) {
     localStorage.setItem("user", JSON.stringify(user));
@@ -81,10 +80,7 @@ async function subscribe(username, password) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password })
   };
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/subscribe`,
-    requestOptions
-  );
+  const response = await fetch(`${API_URL}/subscribe`, requestOptions);
   return handleResponse(response);
 }
 
@@ -97,7 +93,7 @@ async function updatePassword(password) {
     body: JSON.stringify({ username: username, password: password })
   };
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/update/password`,
+    `${API_URL}/auth/update/password`,
     requestOptions
   );
   return handleResponse(response);
@@ -111,10 +107,7 @@ async function getNotes() {
     headers: authHeader(false)
   };
 
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/notes`,
-    requestOptions
-  );
+  const response = await fetch(`${API_URL}/auth/notes`, requestOptions);
   return handleResponse(response);
 }
 
@@ -124,10 +117,7 @@ async function getSharedNotes() {
     headers: authHeader(false)
   };
 
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/share/notes`,
-    requestOptions
-  );
+  const response = await fetch(`${API_URL}/auth/share/notes`, requestOptions);
   return handleResponse(response);
 }
 
@@ -138,10 +128,7 @@ async function postNote(note) {
     body: JSON.stringify(note)
   };
 
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/notes`,
-    requestOptions
-  );
+  const response = await fetch(`${API_URL}/auth/notes`, requestOptions);
   return handleResponse(response);
 }
 
@@ -151,10 +138,7 @@ async function deleteNote(id) {
     headers: authHeader(false)
   };
 
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/notes/${id}`,
-    requestOptions
-  );
+  const response = await fetch(`${API_URL}/auth/notes/${id}`, requestOptions);
   return handleResponse(response);
 }
 
@@ -171,9 +155,6 @@ async function getUsers(search = "") {
     query = `?search=${search}`;
   }
 
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/users${query}`,
-    requestOptions
-  );
+  const response = await fetch(`${API_URL}/auth/users${query}`, requestOptions);
   return handleResponse(response);
 }
