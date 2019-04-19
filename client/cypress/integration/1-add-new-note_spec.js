@@ -53,7 +53,7 @@ describe(`Notes creation ${seed}`, function() {
     });
 
     // Create new unprotected note
-    cy.contains("New Note").click();
+    cy.contains("button", "New Note", { timeout: 30000 }).click();
     cy.get('[name="title"]').type("New note");
     cy.get('[name="content"]').type(noteContent);
     cy.get('[data-test="protected"]').uncheck();
@@ -83,7 +83,9 @@ describe(`Notes creation ${seed}`, function() {
     cy.get('[name="password"]').type(password);
     cy.get('[data-test="login-btn"]').click();
 
-    cy.contains("div.alert-danger", "Incorrect Password").should("exist");
+    cy.contains("div.alert-danger", "Incorrect Password", {
+      timeout: 30000
+    }).should("exist");
   });
 
   it("Alice sign in with her new password and find her notes", function() {
