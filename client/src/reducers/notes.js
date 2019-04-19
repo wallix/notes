@@ -20,7 +20,7 @@ export const notes = (state = [], action) => {
           : note
       );
     case notesConstants.GETALL_SUCCESS:
-      return state.concat(action.notes.notes);
+      return [...action.notes.notes];
     case notesConstants.GETSHARING_SUCCESS:
       return state.map(note =>
         note.ID === action.id

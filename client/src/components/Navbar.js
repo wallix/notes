@@ -1,11 +1,18 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Navbar, Nav, NavDropdown, MenuItem } from "react-bootstrap";
+import {
+  Button,
+  Navbar,
+  Nav,
+  NavDropdown,
+  MenuItem,
+  Glyphicon
+} from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 
 import { parseJWT } from "../utils";
 import { uiConstants } from "../constants";
-import { uiActions, usersActions } from "../actions";
+import { uiActions, usersActions, noteActions } from "../actions";
 import NewNote from "./NewNote";
 import ShareNote from "./ShareNote";
 import UserProfile from "./UserProfile";
@@ -38,6 +45,14 @@ class Navigation extends React.Component {
                 }}
               >
                 New Note
+              </Button>
+              <Button
+                style={{ marginLeft: "15px" }}
+                onClick={() => {
+                  this.props.dispatch(noteActions.getNotes());
+                }}
+              >
+                <Glyphicon glyph="refresh" />
               </Button>
             </Navbar.Form>
             <Nav pullRight>
