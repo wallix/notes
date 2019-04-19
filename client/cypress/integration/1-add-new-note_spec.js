@@ -5,26 +5,28 @@ const crypto = require("crypto"),
 
 shasum.update(new Date().getTime() + "");
 
-const seed = shasum.digest("hex").substring(0, 5);
+const seed = shasum.digest("hex").substring(0, 8);
+// const seed = `test1`;
+
+const username = `alice.${seed}`;
+// const username = `alice-test-6`; // DO NOT COMMIT
+
+const password = `password1234=?`;
+const password2 = `password567=!`;
+const formatedDate = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  hour12: false
+}).format(new Date());
+const noteContent = `Here is a new note \n${formatedDate}`;
+const encryptedContent = `Here is a new encrypted note \n${formatedDate}`;
+const encryptedSharedContent = `Here is a new encrypted shared note \n${formatedDate}`;
 
 describe(`Notes creation ${seed}`, function() {
-  const username = `alice.${seed}`;
-  // const username = `alice-test-6`; // DO NOT COMMIT
-
-  const password = `password1234=?`;
-  const password2 = `password567=!`;
-  const formatedDate = new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: false
-  }).format(new Date());
-  const noteContent = `Here is a new note \n${formatedDate}`;
-  const encryptedNoteContent = `Here is a new encrypted note \n${formatedDate}`;
-
   it("Random Alice create an account", function() {
     cy.visit("/");
     cy.contains("Create an account").click();
@@ -60,11 +62,11 @@ describe(`Notes creation ${seed}`, function() {
     // Create new protected note
     cy.contains("New Note").click();
     cy.get('[name="title"]').type("New note encrypted");
-    cy.get('[name="content"]').type(encryptedNoteContent);
+    cy.get('[name="content"]').type(encryptedContent);
     cy.get('[data-test="protected"]').check();
     cy.get('[data-test="save"]').click();
 
-    for (let content of [noteContent, encryptedNoteContent]) {
+    for (let content of [noteContent, encryptedContent]) {
       cy.contains("div.panel-body", content, { timeout: 20000 }).should(
         "exist"
       );
@@ -129,31 +131,37 @@ describe(`Notes creation ${seed}`, function() {
       });
     }
   }
+});
 
-  it("Alice sign in and share a new note", function() {
-    const encryptedContent = `Here is a new encrypted shared note \n${formatedDate}`;
-
+describe(`Notes sharing ${seed}`, function() {
+  it(`alice.${seed} share a new note`, function() {
     cy.visit("/");
-    // login
-    cy.get('[name="username"]').type(username);
+    cy.get('[name="username"]').type(`alice.${seed}`);
     cy.get('[name="password"]').type(password2);
     cy.get('[data-test="login-btn"]').click();
+    cy.contains("button", "New Note", { timeout: 20000 }).should("exist");
 
-    // cy.contains("button", "New Note", { timeout: 30000 }).should("exist");
-    cy.contains("button", "New Note", { timeout: 30000 }).click();
+    // Test if precedent title exists
+    cy.contains("div", "New note encrypted", {
+      timeout: 10000
+    }).should("exist");
 
     // In case of lots of notes, I need to wait them to be all decrypted
-    cy.get("li.list-group-item", { timeout: 30000 }).each(() => {
-      cy.wait(800);
-    });
+    // cy.get("li.list-group-item", { timeout: 30000 }).each(() => {
+    //   cy.wait(800);
+    // });
+
+    cy.contains("button", "New Note", {
+      timeout: 20000
+    }).click();
 
     cy.get("#ShareSelect > div > div:first-child").click();
-    cy.get("#ShareSelect input").type("alice.0", { force: true });
+    cy.get("#ShareSelect input").type(`alice.0.${seed}`, { force: true });
 
     cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").click();
 
     cy.get('[name="title"]').type("New note encrypted and shared");
-    cy.get('[name="content"]').type(encryptedContent);
+    cy.get('[name="content"]').type(encryptedSharedContent);
     cy.get('[data-test="protected"]').check();
 
     cy.contains("Save").click();
@@ -162,12 +170,28 @@ describe(`Notes creation ${seed}`, function() {
       "not.exist"
     );
 
-    cy.contains("div.panel-body", encryptedContent, { timeout: 20000 }).should(
-      "exist"
-    );
+    cy.contains("div.panel-body", encryptedSharedContent, {
+      timeout: 20000
+    }).should("exist");
   });
 
-  it("Alice sign in with her new password, find her shared notes and extends share", function() {
+  it(`alice.0.${seed} find her notes`, function() {
+    cy.visit("/");
+    cy.get('[name="username"]').type(`alice.0.${seed}`);
+    cy.get('[name="password"]').type(password2);
+    cy.get('[data-test="login-btn"]').click();
+    cy.contains("button", "New Note", { timeout: 20000 }).should("exist");
+
+    // Test if precedent title exists
+    cy.contains("div", "New note encrypted and shared", {
+      timeout: 10000
+    }).should("exist");
+    cy.contains("div.panel-body", encryptedSharedContent, {
+      timeout: 20000
+    }).should("exist");
+  });
+
+  it("Alice sign in and extends share with alice.1", function() {
     cy.visit("/");
 
     cy.get('[name="username"]').type(username);
@@ -176,22 +200,15 @@ describe(`Notes creation ${seed}`, function() {
 
     cy.contains("button", "New Note", { timeout: 30000 }).should("exist");
 
-    // Test if precedent title exists
-    cy.contains("div", "New note encrypted and shared", {
-      timeout: 30000
-    }).should("exist");
-
-    // Click on shared button
-    cy.get("span.shared", {
-      timeout: 30000
-    })
-      .eq(0)
-      .parent("button")
+    cy.contains("div.panel-body", encryptedSharedContent, { timeout: 20000 })
+      .parentsUntil("li")
+      .find(".shared")
+      .parent()
       .click();
 
     // Search alice.1
     cy.get("#ShareSelect > div > div:first-child").click();
-    cy.get("#ShareSelect input").type("alice.1", { force: true });
+    cy.get("#ShareSelect input").type(`alice.1.${seed}`, { force: true });
 
     cy.wait(2000);
 
@@ -210,5 +227,17 @@ describe(`Notes creation ${seed}`, function() {
 
     cy.contains("alice.1").should("exist");
     cy.contains("Cancel").click();
+  });
+
+  it(`alice.1.${seed} find her notes`, function() {
+    cy.visit("/");
+    cy.get('[name="username"]').type(`alice.1.${seed}`);
+    cy.get('[name="password"]').type(password2);
+    cy.get('[data-test="login-btn"]').click();
+    cy.contains("button", "New Note", { timeout: 20000 }).should("exist");
+
+    cy.contains("div.panel-body", encryptedSharedContent, {
+      timeout: 10000
+    }).should("exist");
   });
 });

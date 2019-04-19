@@ -11,7 +11,8 @@ export const notesService = {
   getNotes,
   getSharedNotes,
   postNote,
-  deleteNote
+  deleteNote,
+  shareNote
 };
 
 export const usersService = {
@@ -153,6 +154,19 @@ async function deleteNote(id) {
 
   const response = await fetch(
     `${process.env.REACT_APP_API_URL}/auth/notes/${id}`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
+async function shareNote(id, sharedWith) {
+  const requestOptions = {
+    method: "POST",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/share/${id}/${sharedWith}`,
     requestOptions
   );
   return handleResponse(response);

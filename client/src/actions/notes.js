@@ -3,14 +3,14 @@ import { notesService } from "../services";
 import { uiActions } from "./ui";
 import { ResourceAPI } from "datapeps-sdk";
 
-function addNote(title, content) {
+function addNote(title, content, sharedIds) {
   return dispatch => {
     let note = {
       type: notesConstants.ADD_NOTE,
       title,
       content
     };
-    dispatch(postNote(note));
+    dispatch(postNote(note, sharedIds));
     dispatch(uiActions.closeModal(uiConstants.NewNoteModal));
   };
 }
@@ -31,13 +31,16 @@ function deleteNote(id) {
   }
 }
 
-function postNote(note) {
+function postNote(note, sharedWith) {
   return async dispatch => {
     dispatch(request());
 
     try {
       const response = await notesService.postNote(note);
-      dispatch(success(response.noteID));
+      let share = await Promise.all(
+        sharedWith.map(id => notesService.shareNote(response.noteID, id))
+      );
+      dispatch(success(response.noteID, share));
       dispatch({ ...note, id: response.noteID });
     } catch (error) {
       dispatch(failure(error));
@@ -46,8 +49,8 @@ function postNote(note) {
   function request() {
     return { type: notesConstants.POST_REQUEST };
   }
-  function success(id) {
-    return { type: notesConstants.POST_SUCCESS, id: id };
+  function success(id, sharedWith) {
+    return { type: notesConstants.POST_SUCCESS, id: id, sharedWith };
   }
   function failure(error) {
     return { type: notesConstants.POST_FAILURE, error };

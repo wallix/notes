@@ -121,7 +121,7 @@ class NewNote extends React.Component {
       title = ID.clip(resource.id, title);
       content = resource.encrypt(content);
     }
-    this.props.addNote(title, content);
+    this.props.addNote(title, content, this.state.sharingList);
   }
 }
 

@@ -19,7 +19,7 @@ export const NoteLayout = ({
     <Panel.Body>{Content}</Panel.Body>
     <Panel.Footer className="text-right">
       <ButtonGroup>
-        <Button onClick={openShareModal}>
+        <Button onClick={openShareModal} data-test="share">
           <Glyphicon
             className={
               SharedWith && SharedWith.length > 0 ? "shared" : "notshared"

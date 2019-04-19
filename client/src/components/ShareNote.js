@@ -6,6 +6,7 @@ import ShareSelect from "./ShareSelect";
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
 import { ResourceAPI } from "datapeps-sdk";
+import { notesService } from "../services";
 
 class ShareNote extends React.Component {
   constructor(props, context) {
@@ -81,6 +82,9 @@ class ShareNote extends React.Component {
       this.state.sharingList.map(
         u => `${u}@${process.env.REACT_APP_DATAPEPS_APP_ID}`
       )
+    );
+    await this.state.sharingList.map(u =>
+      notesService.shareNote(payload.id, u)
     );
     this.props.getSharedWith(payload.id, payload.resourceId);
     this.props.closeModal(uiConstants.ShareNoteModal);
