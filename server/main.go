@@ -65,6 +65,7 @@ func (e *Env) httpEngine() *gin.Engine {
 		auth.GET("/users", e.userListHandler)
 
 		auth.POST("/share/:id/:with", e.noteShareHandler)
+		auth.POST("/group", e.groupCreateHandler)
 		auth.GET("/share/notes", e.getSharedNotes)
 	}
 
@@ -85,6 +86,7 @@ func openEnv(name string) *Env {
 	// Migrate the schema
 	db.AutoMigrate(&Note{})
 	db.AutoMigrate(&Login{})
+	db.AutoMigrate(&Group{})
 	return &Env{db: db}
 }
 

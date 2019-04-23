@@ -269,6 +269,42 @@ func TestNoteSharing(t *testing.T) {
 	}
 }
 
+func TestGroup(t *testing.T) {
+	var err error
+	user1 := map[string]interface{}{
+		"username": "toto_group",
+		"password": "totopass",
+	}
+	user2 := map[string]interface{}{
+		"username": "titi_group",
+		"password": "titipass",
+	}
+	group := map[string]interface{}{
+		"name":  "my group",
+		"users": []string{user1["username"].(string), user2["username"].(string)},
+	}
+	// create 2 users
+	_, err = postJSON(t, "/subscribe", user1, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	result, err := postJSON(t, "/subscribe", user2, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	// login first user and get token
+	result, err = postJSON(t, "/login", user1, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	token := result["token"].(string)
+	// user1 creates the group
+	result, err = postJSON(t, "/auth/group", group, &token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+}
+
 func TestMain(m *testing.M) {
 	// setup database
 	_ = os.Remove("test.db")

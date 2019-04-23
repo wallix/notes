@@ -13,15 +13,28 @@ import (
 // Login represents a user
 type Login struct {
 	gorm.Model
-	Username    string  `form:"username" json:"username" binding:"required"`
-	Password    string  `form:"password" json:"password" binding:"required"`
-	SharedNotes []*Note `gorm:"many2many:note_shared;"`
+	Username    string   `form:"username" json:"username" binding:"required"`
+	Password    string   `form:"password" json:"password" binding:"required"`
+	SharedNotes []*Note  `gorm:"many2many:note_shared;"`
+	Groups      []*Group `gorm:"many2many:group_users;"`
+}
+
+type Group struct {
+	gorm.Model
+	Name  string   `form:"name" json:"name" binding:"required"`
+	Users []*Login `gorm:"many2many:group_users;"`
 }
 
 func (e *Env) getUser(username string) (*Login, error) {
 	var login Login
 	err := e.db.Where("username = ?", username).First(&login).Error
 	return &login, err
+}
+
+func (e *Env) getUsers(username []string) ([]*Login, error) {
+	var logins []*Login
+	err := e.db.Where("username IN (?)", username).Find(&logins).Error
+	return logins, err
 }
 
 func (e *Env) changePassword(username string, json Login) error {
@@ -90,4 +103,32 @@ func (e *Env) userListHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"users": usernames})
+}
+
+type CreateGroupRequest struct {
+	Name  string   `json:"name"`
+	Users []string `json:"users"`
+}
+
+func (e *Env) groupCreateHandler(c *gin.Context) {
+	var request CreateGroupRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
+		return
+	}
+	users, err := e.getUsers(request.Users)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	err = e.db.Save(&Group{
+		Name:  request.Name,
+		Users: users,
+	}).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, request)
 }
