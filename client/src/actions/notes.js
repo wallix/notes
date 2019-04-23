@@ -95,7 +95,7 @@ function getNotes() {
 function getSharedWith(id, resourceId) {
   return async (dispatch, getState) => {
     dispatch(request());
-    const datapeps = getState().authentication.datapeps;
+    const datapeps = getState().auth.datapeps;
     try {
       const rApi = new ResourceAPI(datapeps);
       const sharing = await rApi.getSharingGroup(resourceId);

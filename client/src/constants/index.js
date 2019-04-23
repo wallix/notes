@@ -1,4 +1,4 @@
 export * from "./ui";
-export * from "./authentication";
+export * from "./auth";
 export * from "./notes";
 export * from "./users";

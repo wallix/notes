@@ -8,10 +8,9 @@ import {
   MenuItem,
   Glyphicon
 } from "react-bootstrap";
-import { LinkContainer } from "react-router-bootstrap";
 
 import { parseJWT } from "../utils";
-import { uiConstants } from "../constants";
+import { uiConstants, authConstants } from "../constants";
 import { uiActions, usersActions, noteActions } from "../actions";
 import NewNote from "./NewNote";
 import ShareNote from "./ShareNote";
@@ -72,9 +71,16 @@ class Navigation extends React.Component {
                   User profile
                 </MenuItem>
                 <MenuItem divider />
-                <LinkContainer to="/login">
-                  <MenuItem eventKey={2.2}>Logout</MenuItem>
-                </LinkContainer>
+                <MenuItem
+                  eventKey={2.2}
+                  onClick={() =>
+                    this.props.dispatch({
+                      type: authConstants.LOGOUT
+                    })
+                  }
+                >
+                  Logout
+                </MenuItem>
               </NavDropdown>
             </Nav>
           </Navbar.Collapse>
@@ -85,8 +91,8 @@ class Navigation extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { notes, authentication } = state;
-  const { user } = authentication;
+  const { notes, auth } = state;
+  const { user } = auth;
   return {
     user,
     notes

@@ -1,4 +1,5 @@
 import { parseJWT } from "../utils";
+import store from "../store";
 
 export const authService = {
   login,
@@ -33,16 +34,10 @@ async function login(username, password) {
     requestOptions
   );
   const user = await handleResponse(response);
-  if (user.token) {
-    localStorage.setItem("user", JSON.stringify(user));
-  }
   return user;
 }
 
-function logout() {
-  // remove user from local storage to log user out
-  localStorage.removeItem("user");
-}
+function logout() {}
 
 // utils
 
@@ -67,8 +62,7 @@ function handleResponse(response) {
 // return authorization header with JWT token
 function authHeader(isJSON) {
   let res = isJSON ? { "Content-Type": "application/json" } : {};
-  let user = JSON.parse(localStorage.getItem("user"));
-
+  let user = store.getState().auth.user;
   if (user && user.token) {
     return { ...res, Authorization: "Bearer " + user.token };
   } else {

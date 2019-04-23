@@ -95,7 +95,7 @@ const mapStateToProps = state => ({
   modals: state.modals.modals,
   payload: state.modals.payload,
   notes: state.notes,
-  datapeps: state.authentication.datapeps
+  datapeps: state.auth.datapeps
 });
 const mapDispatchToProps = {
   ...uiActions,

@@ -1,13 +1,12 @@
 import React from "react";
-import { Router, Route } from "react-router-dom";
+import { Router } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { uiActions } from "../actions";
 import { history } from "../history";
 
 // Components
-import LoginPage from "./LoginPage";
-import { PrivateRoute } from "./PrivateRoute";
+import PrivateRoute from "./PrivateRoute";
 import MainPage from "./MainPage";
 
 class App extends React.Component {
@@ -32,7 +31,6 @@ class App extends React.Component {
           <div>
             <div>
               <PrivateRoute exact path="/" component={MainPage} />
-              <Route path="/login" component={LoginPage} />
             </div>
             <footer className="footer">
               <div

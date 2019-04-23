@@ -28,9 +28,6 @@ function login(username, password) {
       dispatch(success(user, datapeps));
       if (firstTime) {
         dispatch(uiActions.openModal(uiConstants.DataPepsUpdate));
-        // history.push done after ChangePassword action
-      } else {
-        history.push("/");
       }
     } catch (error) {
       if (error.kind) {

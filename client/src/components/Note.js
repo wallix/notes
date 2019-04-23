@@ -68,7 +68,7 @@ class Note extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  datapeps: state.authentication.datapeps
+  datapeps: state.auth.datapeps
 });
 const mapDispatchToProps = {
   ...noteActions,

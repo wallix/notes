@@ -165,7 +165,7 @@ class UserProfile extends React.Component {
 
 const mapStateToProps = state => ({
   modals: state.modals.modals,
-  datapeps: state.authentication.datapeps
+  datapeps: state.auth.datapeps
 });
 const mapDispatchToProps = {
   ...uiActions,

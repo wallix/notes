@@ -21,8 +21,8 @@ class MainPage extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { notes, authentication } = state;
-  const { user } = authentication;
+  const { notes, auth } = state;
+  const { user } = auth;
   return {
     user,
     notes
