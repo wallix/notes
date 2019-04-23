@@ -12,7 +12,11 @@ function success(message) {
   return { type: alertConstants.SUCCESS, message };
 }
 
-function error(message) {
+function error(error) {
+  let message = error;
+  if (message !== "string" && error.message != null) {
+    message = error.message;
+  }
   return { type: alertConstants.ERROR, message };
 }
 
