@@ -150,3 +150,38 @@ func (e *Env) groupGetHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"group": group})
 }
+
+type GroupEditRequest struct {
+	Name  string
+	Users []string
+}
+
+func (e *Env) groupEditHandler(c *gin.Context) {
+	var request GroupEditRequest
+	err := c.ShouldBindJSON(&request)
+	ID := c.Param("id")
+	// owner := getOwner(c)
+	var group Group
+	err = e.db.Where("id = ?", ID).First(&group).Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	group.Name = request.Name
+	err = e.db.Save(&group).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	users, err := e.getUsers(request.Users)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	err = e.db.Model(&group).Association("Users").Replace(users).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
+}

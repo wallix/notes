@@ -51,7 +51,7 @@ func getJSON(t *testing.T, url string, token string, expectedStatus int) (map[st
 
 // Utility function to POST JSON and get JSON result
 // TODO: extract Bearer
-func postJSON(t *testing.T, url string, data map[string]interface{}, token *string, expectedStatus int) (map[string]interface{}, error) {
+func methodJSON(t *testing.T, method string, url string, data map[string]interface{}, token *string, expectedStatus int) (map[string]interface{}, error) {
 	var m map[string]interface{}
 	body, _ := json.Marshal(data)
 
@@ -59,7 +59,7 @@ func postJSON(t *testing.T, url string, data map[string]interface{}, token *stri
 		t.Log("postJSON:query body= ", string(body))
 	}
 
-	request, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	request, err := http.NewRequest(method, url, bytes.NewReader(body))
 	if err != nil {
 		return m, err
 	}
@@ -86,6 +86,14 @@ func postJSON(t *testing.T, url string, data map[string]interface{}, token *stri
 	}
 
 	return m, err
+}
+
+func postJSON(t *testing.T, url string, data map[string]interface{}, token *string, expectedStatus int) (map[string]interface{}, error) {
+	return methodJSON(t, "POST", url, data, token, expectedStatus)
+}
+
+func patchJSON(t *testing.T, url string, data map[string]interface{}, token *string, expectedStatus int) (map[string]interface{}, error) {
+	return methodJSON(t, "PATCH", url, data, token, expectedStatus)
 }
 
 func TestCreateUserAndLogInPostAndGetNotes(t *testing.T) {
@@ -280,10 +288,9 @@ func TestGroup(t *testing.T) {
 		"username": "titi_group",
 		"password": "titipass",
 	}
-	usersGroup := []string{user1["username"].(string), user2["username"].(string)}
 	group := map[string]interface{}{
 		"name":  "my group",
-		"users": usersGroup,
+		"users": []string{user1["username"].(string), user2["username"].(string)},
 	}
 	// create 2 users
 	_, err = postJSON(t, "/subscribe", user1, nil, 200)
@@ -311,18 +318,41 @@ func TestGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
-	users := (result["group"].(map[string]interface{}))["users"].([]interface{})
-	if len(users) != 2 {
-		t.Fatalf("The group should contains 2 users")
+	compareGroups(t, group, result["group"].(map[string]interface{}))
+	// user1 edit the group description
+	group = map[string]interface{}{
+		"name":  "my renamed group",
+		"users": []string{user1["username"].(string)},
 	}
-	var usersNames []string
+	_, err = patchJSON(t, fmt.Sprintf("/auth/group/%v", id), group, &token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	// user1 get the group description after edit
+	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v", id), token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	compareGroups(t, group, result["group"].(map[string]interface{}))
+}
+
+func compareGroups(t *testing.T, post, result map[string]interface{}) {
+	if result["name"].(string) != post["name"].(string) {
+		t.Fatalf("The group is not well named, %v != %v", result["name"], post["name"])
+	}
+	var resultUsers []string
+	users := result["users"].([]interface{})
 	for _, u := range users {
-		usersNames = append(usersNames, u.(map[string]interface{})["username"].(string))
+		resultUsers = append(resultUsers, u.(map[string]interface{})["username"].(string))
 	}
-	sort.StringSlice(usersNames).Sort()
-	sort.StringSlice(usersGroup).Sort()
-	for i := range usersGroup {
-		if usersGroup[i] != usersNames[i] {
+	postUsers := post["users"].([]string)
+	if len(resultUsers) != len(postUsers) {
+		t.Fatalf("The group has not the same size: %v vs %v", len(postUsers), len(resultUsers))
+	}
+	sort.StringSlice(resultUsers).Sort()
+	sort.StringSlice(postUsers).Sort()
+	for i := range postUsers {
+		if postUsers[i] != resultUsers[i] {
 			t.Fatalf("The groups are note equals")
 		}
 	}
