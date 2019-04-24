@@ -66,6 +66,7 @@ func (e *Env) httpEngine() *gin.Engine {
 
 		auth.POST("/group", e.groupCreateHandler)
 		auth.POST("/group-notes/:groupID", e.noteGroupPostHandler)
+		auth.GET("/group-notes/:groupID", e.noteGroupListHandler)
 		auth.GET("/group/:id", e.groupGetHandler)
 		auth.PATCH("/group/:id", e.groupEditHandler)
 		auth.GET("/groups", e.groupListHandler)

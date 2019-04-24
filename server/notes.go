@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -158,6 +157,23 @@ func (e *Env) noteGroupPostHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"noteID": note.ID,
 	})
+}
+
+func (e *Env) noteGroupListHandler(c *gin.Context) {
+	var group Group
+	var notes []Note
+	groupID := c.Param("groupID")
+	err := e.db.Where("id = ?", groupID).First(&group).Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	err = e.db.Model(&group).Related(&notes, "Notes").Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"notes": notes})
 }
 
 func (e *Env) createGroupNote(note *Note, groupID string) error {

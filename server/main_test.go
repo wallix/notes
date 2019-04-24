@@ -368,6 +368,19 @@ func TestGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
+	// get notes and check length
+	result, err = getJSON(t, fmt.Sprintf("/auth/group-notes/%v", groupID), token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	notes := result["notes"].([]interface{})
+	if len(notes) != 2 {
+		t.Fatalf("Wrong number of notes: %v", len(notes))
+	}
+	note0 := notes[0].(map[string]interface{})
+	if note0["Title"].(string) != "this is title group" {
+		t.Fatalf("First note has wrong title: %v", note0["Title"].(string))
+	}
 }
 
 func hasGroups(t *testing.T, expected []string, groups []interface{}) {
