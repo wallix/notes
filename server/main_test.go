@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"sort"
 	"strings"
 	"testing"
 
@@ -279,9 +280,10 @@ func TestGroup(t *testing.T) {
 		"username": "titi_group",
 		"password": "titipass",
 	}
+	usersGroup := []string{user1["username"].(string), user2["username"].(string)}
 	group := map[string]interface{}{
 		"name":  "my group",
-		"users": []string{user1["username"].(string), user2["username"].(string)},
+		"users": usersGroup,
 	}
 	// create 2 users
 	_, err = postJSON(t, "/subscribe", user1, nil, 200)
@@ -302,6 +304,27 @@ func TestGroup(t *testing.T) {
 	result, err = postJSON(t, "/auth/group", group, &token, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
+	}
+	id := result["id"]
+	// user1 get the group description
+	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v", id), token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	users := (result["group"].(map[string]interface{}))["users"].([]interface{})
+	if len(users) != 2 {
+		t.Fatalf("The group should contains 2 users")
+	}
+	var usersNames []string
+	for _, u := range users {
+		usersNames = append(usersNames, u.(map[string]interface{})["username"].(string))
+	}
+	sort.StringSlice(usersNames).Sort()
+	sort.StringSlice(usersGroup).Sort()
+	for i := range usersGroup {
+		if usersGroup[i] != usersNames[i] {
+			t.Fatalf("The groups are note equals")
+		}
 	}
 }
 

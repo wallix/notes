@@ -15,14 +15,14 @@ type Login struct {
 	gorm.Model
 	Username    string   `form:"username" json:"username" binding:"required"`
 	Password    string   `form:"password" json:"password" binding:"required"`
-	SharedNotes []*Note  `gorm:"many2many:note_shared;"`
-	Groups      []*Group `gorm:"many2many:group_users;"`
+	SharedNotes []*Note  `json:"-" gorm:"many2many:note_shared;"`
+	Groups      []*Group `json:"-" gorm:"many2many:group_users;"`
 }
 
 type Group struct {
 	gorm.Model
 	Name  string   `form:"name" json:"name" binding:"required"`
-	Users []*Login `gorm:"many2many:group_users;"`
+	Users []*Login `json:"users" gorm:"many2many:group_users;"`
 }
 
 func (e *Env) getUser(username string) (*Login, error) {
@@ -106,8 +106,8 @@ func (e *Env) userListHandler(c *gin.Context) {
 }
 
 type CreateGroupRequest struct {
-	Name  string   `json:"name"`
-	Users []string `json:"users"`
+	Name  string
+	Users []string
 }
 
 func (e *Env) groupCreateHandler(c *gin.Context) {
@@ -122,13 +122,31 @@ func (e *Env) groupCreateHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return
 	}
-	err = e.db.Save(&Group{
+	group := &Group{
 		Name:  request.Name,
 		Users: users,
-	}).Error
+	}
+	err = e.db.Save(group).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return
 	}
-	c.JSON(http.StatusOK, request)
+	c.JSON(http.StatusOK, gin.H{"id": group.ID})
+}
+
+func (e *Env) groupGetHandler(c *gin.Context) {
+	var group Group
+	ID := c.Param("id")
+	// owner := getOwner(c)
+	err := e.db.Where("id = ?", ID).First(&group).Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	err = e.db.Model(&group).Related(&group.Users, "Users").Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"group": group})
 }

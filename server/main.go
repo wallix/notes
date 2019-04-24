@@ -64,8 +64,10 @@ func (e *Env) httpEngine() *gin.Engine {
 
 		auth.GET("/users", e.userListHandler)
 
-		auth.POST("/share/:id/:with", e.noteShareHandler)
 		auth.POST("/group", e.groupCreateHandler)
+		auth.GET("/group/:id", e.groupGetHandler)
+
+		auth.POST("/share/:id/:with", e.noteShareHandler)
 		auth.GET("/share/notes", e.getSharedNotes)
 	}
 
