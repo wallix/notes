@@ -185,3 +185,13 @@ func (e *Env) groupEditHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func (e *Env) groupListHandler(c *gin.Context) {
+	owner, err := e.getUser(getOwner(c))
+	err = e.db.Model(&owner).Related(&owner.Groups, "Groups").Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"groups": owner.Groups})
+}

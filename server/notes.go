@@ -16,6 +16,7 @@ type Note struct {
 	Owner      string
 	Tags       string
 	SharedWith []*Login `gorm:"many2many:note_shared;"`
+	Groups     []*Group `gorm:"many2many:note_groups;"`
 }
 
 func (e *Env) getSharedNotes(c *gin.Context) {
@@ -39,7 +40,6 @@ func (e *Env) noteListHandler(c *gin.Context) {
 	var notes []Note
 
 	owner := getOwner(c)
-
 	err := e.db.Where("owner = ?", owner).Find(&notes).Error
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
@@ -52,7 +52,6 @@ func (e *Env) noteGetHandler(c *gin.Context) {
 	var note Note
 	noteID := c.Param("id")
 	owner := getOwner(c)
-
 	err := e.db.Where("owner = ? AND id = ?", owner, noteID).First(&note).Error
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
@@ -133,6 +132,48 @@ func (e *Env) notePostHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"noteID": note.ID,
 	})
+}
+
+func (e *Env) noteGroupPostHandler(c *gin.Context) {
+	var err error
+	var note Note
+	c.ShouldBindJSON(&note)
+	err = validateNote(note)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err})
+		return
+	}
+
+	// set note owner
+	note.Owner = getOwner(c)
+	// get the (optional) id from path
+	groupID := c.Param("groupID")
+	// create or update the note
+	err = e.createGroupNote(&note, groupID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"noteID": note.ID,
+	})
+}
+
+func (e *Env) createGroupNote(note *Note, groupID string) error {
+	// associate with the group
+	var group Group
+	err := e.db.Where("id = ?", groupID).First(&group).Error
+	if err != nil {
+		return err
+	}
+	note.Groups = []*Group{&group}
+	// create new note
+	err = e.db.Save(&note).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (e *Env) noteDelete(c *gin.Context) {

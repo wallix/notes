@@ -312,28 +312,80 @@ func TestGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
-	id := result["id"]
+	groupID := result["id"]
 	// user1 get the group description
-	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v", id), token, 200)
+	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v", groupID), token, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
 	compareGroups(t, group, result["group"].(map[string]interface{}))
+	// user1 get his groups
+	result, err = getJSON(t, "/auth/groups", token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	hasGroups(t, []string{"my group"}, result["groups"].([]interface{}))
 	// user1 edit the group description
 	group = map[string]interface{}{
 		"name":  "my renamed group",
 		"users": []string{user1["username"].(string)},
 	}
-	_, err = patchJSON(t, fmt.Sprintf("/auth/group/%v", id), group, &token, 200)
+	_, err = patchJSON(t, fmt.Sprintf("/auth/group/%v", groupID), group, &token, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
 	// user1 get the group description after edit
-	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v", id), token, 200)
+	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v", groupID), token, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
 	compareGroups(t, group, result["group"].(map[string]interface{}))
+	// user1 create another group
+	anotherGroup := map[string]interface{}{
+		"name":  "another group",
+		"users": []string{user1["username"].(string), user2["username"].(string)},
+	}
+	result, err = postJSON(t, "/auth/group", anotherGroup, &token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	// user1 get his groups
+	result, err = getJSON(t, "/auth/groups", token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	hasGroups(t, []string{"another group", "my renamed group"}, result["groups"].([]interface{}))
+	// post note (twice)
+	note := map[string]interface{}{
+		"title":   "this is title group",
+		"content": "this is content group",
+	}
+	result, err = postJSON(t, fmt.Sprintf("/auth/group-notes/%v", groupID), note, &token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	result, err = postJSON(t, fmt.Sprintf("/auth/group-notes/%v", groupID), note, &token, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+}
+
+func hasGroups(t *testing.T, expected []string, groups []interface{}) {
+	if len(expected) != len(groups) {
+		t.Fatalf("Expected %v groups, have %v groups", len(expected), len(groups))
+	}
+	var groupsName []string
+	for _, g := range groups {
+		name := g.(map[string]interface{})["name"].(string)
+		groupsName = append(groupsName, name)
+	}
+	sort.StringSlice(expected).Sort()
+	sort.StringSlice(groupsName).Sort()
+	for i := range expected {
+		if expected[i] != groupsName[i] {
+			t.Fatalf("expect groups(%v), has group(%v)", expected, groupsName)
+		}
+	}
 }
 
 func compareGroups(t *testing.T, post, result map[string]interface{}) {
