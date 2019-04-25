@@ -144,7 +144,7 @@ func (e *Env) noteGroupPostHandler(c *gin.Context) {
 	}
 
 	// set note owner
-	note.Owner = getOwner(c)
+	// note.Owner = getOwner(c)
 	// get the (optional) id from path
 	groupID := c.Param("groupID")
 	// create or update the note
