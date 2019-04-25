@@ -57,10 +57,28 @@ function postNote(note, sharedWith) {
   }
 }
 
-function getNotes() {
+function getNotes(group) {
   return dispatch => {
     dispatch(request());
+    console.log("getNotes", group);
+    if (group == null) {
+      getUserNotes(dispatch);
+    } else {
+      getGroupNotes(dispatch, group.ID);
+    }
+  };
 
+  function request() {
+    return { type: notesConstants.GETALL_REQUEST };
+  }
+  function success(notes) {
+    return { type: notesConstants.GETALL_SUCCESS, notes };
+  }
+  function failure(error) {
+    return { type: notesConstants.GETALL_FAILURE, error };
+  }
+
+  function getUserNotes(dispatch) {
     notesService.getNotes().then(
       notes =>
         notesService.getSharedNotes().then(
@@ -79,16 +97,22 @@ function getNotes() {
         ),
       error => dispatch(failure(error))
     );
-  };
+  }
 
-  function request() {
-    return { type: notesConstants.GETALL_REQUEST };
-  }
-  function success(notes) {
-    return { type: notesConstants.GETALL_SUCCESS, notes };
-  }
-  function failure(error) {
-    return { type: notesConstants.GETALL_FAILURE, error };
+  function getGroupNotes(dispatch, groupID) {
+    notesService.getGroupNotes(groupID).then(
+      response =>
+        dispatch(
+          success({
+            notes: response.notes,
+            source: "group"
+          })
+        ),
+      error => {
+        dispatch(success({ notes: [], source: "owner" }));
+        dispatch(failure(error));
+      }
+    );
   }
 }
 

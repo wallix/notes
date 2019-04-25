@@ -8,6 +8,7 @@ export const uiConstants = {
   OPEN_MODAL: "OPEN_MODAL",
   CLOSE_MODAL: "CLOSE_MODAL",
   NewNoteModal: "NEW_NOTE",
+  NewGroupModal: "NEW_GROUP",
   ShareNoteModal: "SHARE_NOTE",
   ChangePasswordModal: "CHANGE_PASSWORD",
   UserSubscribeModal: "USER_SUBSCRIBE",

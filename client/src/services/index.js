@@ -13,11 +13,14 @@ export const notesService = {
   getSharedNotes,
   postNote,
   deleteNote,
-  shareNote
+  shareNote,
+  getGroupNotes
 };
 
 export const usersService = {
-  getUsers
+  getUsers,
+  getGroups,
+  postGroup
 };
 
 // login and logout
@@ -113,6 +116,33 @@ async function getNotes() {
   return handleResponse(response);
 }
 
+async function getGroups() {
+  const requestOptions = {
+    method: "GET",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/groups`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
+async function postGroup(group) {
+  const requestOptions = {
+    method: "POST",
+    headers: authHeader(true),
+    body: JSON.stringify(group)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/group`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
 async function getSharedNotes() {
   const requestOptions = {
     method: "GET",
@@ -121,6 +151,19 @@ async function getSharedNotes() {
 
   const response = await fetch(
     `${process.env.REACT_APP_API_URL}/auth/share/notes`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
+async function getGroupNotes(groupID) {
+  const requestOptions = {
+    method: "GET",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/group-notes/${groupID}`,
     requestOptions
   );
   return handleResponse(response);

@@ -1,13 +1,15 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import { noteActions } from "../actions";
+import { noteActions, usersActions } from "../actions";
 import NoteList from "./NoteList";
 import Navigation from "./Navbar";
+import "./NoteList.css";
 
 class MainPage extends React.Component {
   componentDidMount() {
     this.props.dispatch(noteActions.getNotes());
+    this.props.dispatch(usersActions.getGroups());
   }
 
   render() {
@@ -21,11 +23,10 @@ class MainPage extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { notes, auth } = state;
-  const { user } = auth;
   return {
-    user,
-    notes
+    user: state.auth.user,
+    notes: state.notes,
+    group: state.selectedGroup
   };
 }
 

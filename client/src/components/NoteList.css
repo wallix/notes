@@ -1,0 +1,24 @@
+.notes-sidebar .nav-item {
+  border-radius: 10px;
+  background-color: #f8f8f8;
+  border-color: #e7e7e7;
+  border-width: 1px;
+  border-style: solid;
+  margin: 15px 10px;
+}
+
+.notes-sidebar .nav-item.active {
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+}
+
+.notes-sidebar .nav-link {
+  text-align: center;
+}
+
+.notes-sidebar .nav {
+  background-color: #f8f8f8;
+  border-color: #e7e7e7;
+  border-width: 1px;
+  border-style: solid;
+}
