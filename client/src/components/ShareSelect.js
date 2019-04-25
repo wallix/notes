@@ -1,19 +1,37 @@
 import React from "react";
 import { connect } from "react-redux";
 import Select from "react-select";
+import { usersService } from "../services";
 
-const ShareSelect = ({ onChange, users }) => {
-  return (
-    <Select
-      id={"ShareSelect"}
-      isMulti={true}
-      placeholder={"Share with..."}
-      onChange={options => onChange(options.map(o => o.value))}
-      options={users.map(user => ({ label: user, value: user }))}
-    />
-  );
-};
+class ShareSelect extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      users: []
+    };
 
-const mapStateToProps = state => ({ users: state.users });
+    this.handleInputChange = this.handleInputChange.bind(this);
+  }
 
-export default connect(mapStateToProps)(ShareSelect);
+  render() {
+    return (
+      <Select
+        isMulti={true}
+        placeholder={"Share with..."}
+        onChange={options => this.props.onChange(options.map(o => o.value))}
+        options={this.state.users.map(user => ({ label: user, value: user }))}
+        onInputChange={this.handleInputChange}
+      />
+    );
+  }
+
+  handleInputChange(search) {
+    (async () => {
+      const response = await usersService.getUsers(search);
+      this.setState({ users: response.users == null ? [] : response.users });
+    })();
+    return search;
+  }
+}
+
+export default ShareSelect;
