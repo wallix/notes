@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
-import { ID } from "datapeps-sdk";
-import { ResourceAPI } from "datapeps-sdk";
+import { Modal, Button, Form, FormControl } from "react-bootstrap";
+
 import ShareSelect from "./ShareSelect";
 
 import { uiConstants } from "../constants";
@@ -69,13 +68,6 @@ class NewNote extends React.Component {
                 name="content"
                 onChange={this.changeContent}
               />
-              <Checkbox
-                data-test="protected"
-                checked={this.state.protected}
-                onChange={this.changeProtection}
-              >
-                Protected
-              </Checkbox>
               <ShareSelect onChange={this.changeSharingGroup} />
             </Form>
           </Modal.Body>
@@ -101,26 +93,6 @@ class NewNote extends React.Component {
   async onAddNote() {
     let title = this.state.title;
     let content = this.state.content;
-    if (this.state.protected) {
-      const { datapeps } = this.props;
-      const resource = await new ResourceAPI(datapeps).create(
-        "note",
-        {
-          description: title,
-          URI: `${process.env.REACT_APP_API_URL}/auth/notes`,
-          MIMEType: "text/plain"
-        },
-        [
-          datapeps.login,
-          ...this.state.sharingList.map(
-            u => `${u}@${process.env.REACT_APP_DATAPEPS_APP_ID}`
-          )
-        ]
-      );
-      title = resource.encrypt(title);
-      title = ID.clip(resource.id, title);
-      content = resource.encrypt(content);
-    }
     this.props.addNote(title, content, this.state.sharingList);
   }
 }

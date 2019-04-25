@@ -4,13 +4,18 @@ import { uiActions } from "./ui";
 import { ResourceAPI } from "datapeps-sdk";
 
 function addNote(title, content, sharedIds) {
-  return dispatch => {
+  return (dispatch, getState) => {
     let note = {
       type: notesConstants.ADD_NOTE,
       title,
       content
     };
-    dispatch(postNote(note, sharedIds));
+    const group = getState().selectedGroup;
+    if (group == null) {
+      dispatch(postNote(note, sharedIds));
+    } else {
+      dispatch(postNote(note, sharedIds, group.ID));
+    }
     dispatch(uiActions.closeModal(uiConstants.NewNoteModal));
   };
 }
@@ -31,12 +36,12 @@ function deleteNote(id) {
   }
 }
 
-function postNote(note, sharedWith) {
+function postNote(note, sharedWith, groupID) {
   return async dispatch => {
-    dispatch(request());
+    dispatch(request(note, sharedWith, groupID));
 
     try {
-      const response = await notesService.postNote(note);
+      const response = await notesService.postNote(note, groupID, sharedWith);
       let share = await Promise.all(
         sharedWith.map(id => notesService.shareNote(response.noteID, id))
       );
@@ -60,7 +65,6 @@ function postNote(note, sharedWith) {
 function getNotes(group) {
   return dispatch => {
     dispatch(request());
-    console.log("getNotes", group);
     if (group == null) {
       getUserNotes(dispatch);
     } else {

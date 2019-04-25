@@ -6,7 +6,7 @@ import "./NoteList.css";
 
 import Note from "./Note";
 import { uiActions, usersActions } from "../actions";
-import { uiConstants, usersConstants } from "../constants";
+import { uiConstants } from "../constants";
 import NewGroup from "./NewGroup";
 
 const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
@@ -45,6 +45,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
             </li>
             {groups.map(group => (
               <li
+                key={group.ID}
                 class={`nav-item ${
                   selectedGroup != null && selectedGroup.ID == group.ID
                     ? "active"

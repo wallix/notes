@@ -95,7 +95,6 @@ function selectGroup(group) {
     };
   }
   function failure(error) {
-    console.log("SELECT GROUP ERROR", error);
     return { error };
   }
 }

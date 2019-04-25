@@ -1,12 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Form, FormControl, Checkbox } from "react-bootstrap";
-import { ID } from "datapeps-sdk";
-import { ResourceAPI } from "datapeps-sdk";
+import { Modal, Button, Form, FormControl } from "react-bootstrap";
 import ShareSelect from "./ShareSelect";
 
 import { uiConstants } from "../constants";
-import { noteActions, uiActions, usersActions } from "../actions";
+import { uiActions, usersActions } from "../actions";
 import { parseJWT } from "../utils";
 
 class NewGroup extends React.Component {

@@ -1,5 +1,7 @@
 import { parseJWT } from "../utils";
 import store from "../store";
+import { ResourceAPI, ID, getLogin, IdentityAPI } from "datapeps-sdk";
+import { groupLogin } from "../constants";
 
 export const authService = {
   login,
@@ -136,11 +138,23 @@ async function postGroup(group) {
     body: JSON.stringify(group)
   };
 
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/group`,
-    requestOptions
+  const response = await handleResponse(
+    await fetch(`${process.env.REACT_APP_API_URL}/auth/group`, requestOptions)
   );
-  return handleResponse(response);
+  let api = new IdentityAPI(store.getState().auth.datapeps);
+  await api.create(
+    {
+      kind: "group",
+      login: groupLogin(response.id),
+      name: `Demo notes group: ${group.name}`
+    },
+    {
+      sharingGroup: group.users.map(u =>
+        getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID)
+      )
+    }
+  );
+  return response;
 }
 
 async function getSharedNotes() {
@@ -169,7 +183,8 @@ async function getGroupNotes(groupID) {
   return handleResponse(response);
 }
 
-async function postNote(note) {
+async function postNote(note, groupID, sharedWith) {
+  await encryptNote(note, groupID, sharedWith);
   const requestOptions = {
     method: "POST",
     headers: authHeader(true),
@@ -177,10 +192,34 @@ async function postNote(note) {
   };
 
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/notes`,
+    `${process.env.REACT_APP_API_URL}/auth/${
+      groupID == null ? "notes" : `group-notes/${groupID}`
+    }`,
     requestOptions
   );
   return handleResponse(response);
+}
+
+async function encryptNote(note, groupID, sharedWith) {
+  let datapeps = store.getState().auth.datapeps;
+  let sharingGroup = groupID == null ? [datapeps.login] : [groupLogin(groupID)];
+  if (sharedWith != null) {
+    sharingGroup = sharingGroup.concat(
+      sharedWith.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
+    );
+  }
+  const resource = await new ResourceAPI(datapeps).create(
+    "note",
+    {
+      description: note.title,
+      URI: `${process.env.REACT_APP_API_URL}/auth/notes`,
+      MIMEType: "text/plain"
+    },
+    sharingGroup
+  );
+  note.title = resource.encrypt(note.title);
+  note.title = ID.clip(resource.id, note.title);
+  note.content = resource.encrypt(note.content);
 }
 
 async function deleteNote(id) {

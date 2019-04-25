@@ -13,3 +13,7 @@ export const notesConstants = {
   DEL_FAILURE: "NOTES_DEL_FAILURE",
   GET_USERS_LIST: "NOTES_GET_USERS"
 };
+
+export function groupLogin(groupID) {
+  return `group-${groupID}-0-${process.env.REACT_APP_DATAPEPS_APP_ID}`;
+}

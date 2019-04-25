@@ -17,8 +17,8 @@ function login(username, password) {
       };
       const {
         session: datapeps,
-        app: user,
-        new: firstTime
+        appSession: user,
+        isNew: firstTime
       } = await ApplicationJWT.createSession(
         process.env.REACT_APP_DATAPEPS_APP_ID,
         username,

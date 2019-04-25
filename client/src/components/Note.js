@@ -4,7 +4,7 @@ import { noteActions, uiActions, usersActions } from "../actions";
 import { ID } from "datapeps-sdk";
 import { ResourceAPI } from "datapeps-sdk";
 import { NoteLayout } from "./NoteLayout";
-import { uiConstants } from "../constants";
+import { uiConstants, groupLogin } from "../constants";
 
 class Note extends React.Component {
   constructor(props) {
@@ -48,10 +48,11 @@ class Note extends React.Component {
   }
   async decryptNote() {
     try {
-      const { datapeps } = this.props;
+      const { datapeps, group } = this.props;
       const { id, data: encryptedTitle } = ID.unclip(this.state.Title);
-      const rApi = new ResourceAPI(datapeps);
-      const resource = await rApi.get(id);
+      const api = new ResourceAPI(datapeps);
+      const options = group == null ? null : { assume: groupLogin(group.ID) };
+      const resource = await api.get(id, options);
       const Title = resource.decrypt(encryptedTitle);
       const Content = resource.decrypt(this.state.Content);
       this.setState({
@@ -68,7 +69,8 @@ class Note extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  datapeps: state.auth.datapeps
+  datapeps: state.auth.datapeps,
+  group: state.selectedGroup
 });
 const mapDispatchToProps = {
   ...noteActions,

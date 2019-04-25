@@ -14,7 +14,6 @@ export const groups = (state = [], action) => {
     case usersConstants.GETGROUPLIST_SUCCESS:
       return [...action.groups];
     case usersConstants.POSTGROUPLIST_SUCCESS:
-      console.log("Getting group success", action);
       return [action.group].concat(state);
     default:
       return state;
