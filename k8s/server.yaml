@@ -17,6 +17,13 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          volumeMounts:
+            - name: notes-server-db
+              mountPath: /notes-db
+      volumes:
+        - name: notes-server-db
+          persistentVolumeClaim:
+            claimName: notes-server-db
 ---
 apiVersion: v1
 kind: Service
@@ -30,3 +37,28 @@ spec:
   ports:
     - port: 80
       targetPort: 8080
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: notes-server-db
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 100G
+  accessModes:
+    - ReadWriteOnce
+  gcePersistentDisk:
+    pdName: notes-server-db
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: notes-server-db
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100G
