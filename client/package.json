@@ -14,7 +14,7 @@
     "babel-loader": "^8.0.5"
   },
   "dependencies": {
-    "datapeps-sdk": "^1.0.1",
+    "datapeps-sdk": "^1.0.2",
     "history": "^4.9.0",
     "long": "^4.0.0",
     "react": "^16.8.6",

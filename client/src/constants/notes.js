@@ -15,5 +15,7 @@ export const notesConstants = {
 };
 
 export function groupLogin(groupID) {
-  return `group-${groupID}-0-${process.env.REACT_APP_DATAPEPS_APP_ID}`;
+  return `group-${groupID}-${process.env.REACT_APP_GROUP_SEED}-${
+    process.env.REACT_APP_DATAPEPS_APP_ID
+  }`;
 }

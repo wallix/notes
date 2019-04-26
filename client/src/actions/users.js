@@ -1,4 +1,4 @@
-import { usersConstants, uiConstants } from "../constants";
+import { usersConstants, uiConstants, alertConstants } from "../constants";
 import { usersService } from "../services";
 import { uiActions } from "./ui";
 import { noteActions } from "./notes";
@@ -99,9 +99,35 @@ function selectGroup(group) {
   }
 }
 
+function refresh() {
+  return async (dispatch, getState) => {
+    try {
+      const group = getState().selectedGroup;
+      dispatch(success(group));
+      dispatch(noteActions.getNotes(group));
+      dispatch(getGroups());
+    } catch (error) {
+      dispatch(failure(error));
+    }
+  };
+  function success(group) {
+    return {
+      type:
+        group == null
+          ? usersConstants.SELECT_MY_NOTES
+          : usersConstants.SELECT_GROUP_NOTE,
+      group
+    };
+  }
+  function failure(error) {
+    return { type: alertConstants.ERROR, error };
+  }
+}
+
 export const usersActions = {
   getList,
   getGroups,
   addGroup,
-  selectGroup
+  selectGroup,
+  refresh
 };

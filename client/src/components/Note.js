@@ -50,6 +50,7 @@ class Note extends React.Component {
     try {
       const { datapeps, group } = this.props;
       const { id, data: encryptedTitle } = ID.unclip(this.state.Title);
+      console.log("GROUP", group);
       const api = new ResourceAPI(datapeps);
       const options = group == null ? null : { assume: groupLogin(group.ID) };
       const resource = await api.get(id, options);
@@ -61,7 +62,7 @@ class Note extends React.Component {
         style: "warning",
         resourceId: id
       });
-      this.props.getSharedWith(this.props.ID, id);
+      // this.props.getSharedWith(this.props.ID, id);
     } catch (err) {
       console.log("decryptNote: ", err);
     }

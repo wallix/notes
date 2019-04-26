@@ -1,38 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: note-client-deployment
+  name: notes-client
 spec:
   selector:
     matchLabels:
-      app: note-client
+      app: notes-client
   template:
     metadata:
       labels:
-        app: note-client
+        app: notes-client
     spec:
       containers:
-      - name: note-client
-        image: node-frontend
-        resources:
-          requests:
-            memory: "32Mi"
-            cpu: "100m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 8080
+        - name: notes-client
+          image: gcr.io/peps-146814/notes-client:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: note-client-service
+  name: notes-client
 spec:
   type: LoadBalancer
+  loadBalancerIP: 34.76.229.203
   selector:
-    app: note-client
+    app: notes-client
   ports:
-  - port: 3000
-    targetPort: 8080
-
+    - port: 80
+      targetPort: 5000

@@ -1,4 +1,4 @@
-import { notesConstants, uiConstants } from "../constants";
+import { notesConstants, uiConstants, groupLogin } from "../constants";
 import { notesService } from "../services";
 import { uiActions } from "./ui";
 import { ResourceAPI } from "datapeps-sdk";
@@ -124,9 +124,11 @@ function getSharedWith(id, resourceId) {
   return async (dispatch, getState) => {
     dispatch(request());
     const datapeps = getState().auth.datapeps;
+    const group = getState().auth.selectedGroup;
     try {
       const rApi = new ResourceAPI(datapeps);
-      const sharing = await rApi.getSharingGroup(resourceId);
+      const options = group == null ? null : { assume: groupLogin(group.ID) };
+      const sharing = await rApi.getSharingGroup(resourceId, options);
       dispatch(
         success(
           sharing.map(s => s.identityID.login).filter(l => l !== datapeps.login)

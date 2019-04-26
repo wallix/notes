@@ -40,7 +40,6 @@ class Navigation extends React.Component {
                   this.props.dispatch(
                     uiActions.openModal(uiConstants.NewNoteModal)
                   );
-                  this.props.dispatch(usersActions.getList());
                 }}
               >
                 New Note
@@ -48,7 +47,7 @@ class Navigation extends React.Component {
               <Button
                 style={{ marginLeft: "15px" }}
                 onClick={() => {
-                  this.props.dispatch(noteActions.getNotes());
+                  this.props.dispatch(usersActions.refresh());
                 }}
               >
                 <Glyphicon glyph="refresh" />
