@@ -43,7 +43,7 @@ class NewNote extends React.Component {
   }
 
   render() {
-    const { modals, closeModal } = this.props;
+    const { modals, closeModal, group } = this.props;
     return (
       <div>
         <Modal
@@ -68,7 +68,9 @@ class NewNote extends React.Component {
                 name="content"
                 onChange={this.changeContent}
               />
-              <ShareSelect onChange={this.changeSharingGroup} />
+              {group != null ? null : (
+                <ShareSelect onChange={this.changeSharingGroup} />
+              )}
             </Form>
           </Modal.Body>
           <Modal.Footer>
@@ -99,7 +101,8 @@ class NewNote extends React.Component {
 
 const mapStateToProps = state => ({
   modals: state.modals.modals,
-  datapeps: state.auth.datapeps
+  datapeps: state.auth.datapeps,
+  group: state.selectedGroup
 });
 const mapDispatchToProps = {
   ...uiActions,
