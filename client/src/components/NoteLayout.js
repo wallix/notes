@@ -10,29 +10,32 @@ export const NoteLayout = ({
   Content,
   style,
   SharedWith,
-  openShareModal
+  openShareModal,
+  group
 }) => (
   <Panel className="note-item" bsStyle={DeletedAt ? "danger" : style}>
     <Panel.Heading>
       <Panel.Title componentClass="h3">{Title}</Panel.Title>
     </Panel.Heading>
     <Panel.Body>{Content}</Panel.Body>
-    <Panel.Footer className="text-right">
-      <ButtonGroup>
-        <Button onClick={openShareModal} data-test="share">
-          <Glyphicon
-            className={
-              SharedWith && SharedWith.length > 0 ? "shared" : "notshared"
-            }
-            glyph="share"
-          />
-        </Button>
-        {DeletedAt || (
-          <Button bsStyle={style} onClick={() => deleteNote(ID)}>
-            <Glyphicon glyph="trash" />
+    {group != null ? null : (
+      <Panel.Footer className="text-right">
+        <ButtonGroup>
+          <Button onClick={openShareModal} data-test="share">
+            <Glyphicon
+              className={
+                SharedWith && SharedWith.length > 0 ? "shared" : "notshared"
+              }
+              glyph="share"
+            />
           </Button>
-        )}
-      </ButtonGroup>
-    </Panel.Footer>
+          {DeletedAt || (
+            <Button bsStyle={style} onClick={() => deleteNote(ID)}>
+              <Glyphicon glyph="trash" />
+            </Button>
+          )}
+        </ButtonGroup>
+      </Panel.Footer>
+    )}
   </Panel>
 );

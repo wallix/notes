@@ -18,7 +18,7 @@ class Note extends React.Component {
   }
 
   render() {
-    const { DeletedAt, ID, deleteNote, SharedWith } = this.props;
+    const { DeletedAt, ID, deleteNote, SharedWith, group } = this.props;
     const { Title, Content, style } = this.state;
 
     return (
@@ -37,7 +37,8 @@ class Note extends React.Component {
               id: this.props.ID,
               resourceId: this.state.resourceId
             });
-          }
+          },
+          group
         }}
       />
     );
