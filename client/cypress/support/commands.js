@@ -23,3 +23,10 @@
 //
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("login", (login, pw) => {
+  cy.get('[name="username"]').type(login);
+  cy.get('[name="password"]').type(pw);
+  cy.get('[data-test="login-btn"]').click();
+  cy.contains("button", "New Note", { timeout: 20000 }).should("exist");
+});
