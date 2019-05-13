@@ -18,44 +18,45 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
       <Row className="notes-sidebar">
         <Col sm={3}>
           <ul
-            class="nav flex-column"
+            className="nav flex-column"
             id="v-pills-tab"
             role="tablist"
             aria-orientation="vertical"
           >
-            <li class={`nav-item ${selectedGroup == null ? "active" : ""}`}>
-              <a
-                class="nav-link"
+            <li className={`nav-item ${selectedGroup == null ? "active" : ""}`}>
+              <Button
+                className="nav-link"
+                href="#"
                 onClick={() => {
                   dispatch(usersActions.selectGroup());
                 }}
               >
                 My Notes
-              </a>
+              </Button>
             </li>
           </ul>
           <ul
-            class="nav flex-column"
+            className="nav flex-column"
             id="v-pills-tab"
             role="tablist"
             aria-orientation="vertical"
           >
-            <li class="nav-item disabled">
-              <a class="nav-link" href="#">
+            <li className="nav-item disabled">
+              <Button className="nav-link" href="#">
                 {groups.length} groups
-              </a>
+              </Button>
             </li>
             {groups.map(group => (
               <li
                 key={group.ID}
-                class={`nav-item ${
-                  selectedGroup != null && selectedGroup.ID == group.ID
+                className={`nav-item ${
+                  selectedGroup != null && selectedGroup.ID === group.ID
                     ? "active"
                     : ""
                 }`}
               >
-                <a
-                  class="nav-link"
+                <Button
+                  className="nav-link"
                   onClick={() => {
                     dispatch(usersActions.selectGroup(group));
                   }}
@@ -79,18 +80,18 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                       glyph="edit"
                     />
                   </span>
-                </a>
+                </Button>
               </li>
             ))}
-            <li class="nav-item">
-              <a
-                class="nav-link"
+            <li className="nav-item">
+              <Button
+                className="nav-link"
                 onClick={() => {
                   dispatch(uiActions.openModal(uiConstants.NewGroupModal));
                 }}
               >
                 <Glyphicon glyph="plus" />
-              </a>
+              </Button>
             </li>
           </ul>
         </Col>
