@@ -2,7 +2,7 @@ import { authConstants, uiConstants } from "../constants";
 import { authService } from "../services";
 import { uiActions } from "./index";
 import { history } from "../history";
-import { ApplicationJWT } from "datapeps-sdk";
+import { ApplicationJWT, IdentityAPI } from "datapeps-sdk";
 import { SDKError } from "datapeps-sdk";
 
 function login(username, password) {
@@ -70,9 +70,9 @@ function changePassword(p1, p2, modalName, datapeps) {
   return async dispatch => {
     if (p1 === p2) {
       dispatch(request());
-      dispatch(uiActions.closeModal(modalName));
       try {
-        await datapeps.renewKeys(p1);
+        let iApi = new IdentityAPI(datapeps);
+        await iApi.renewKeys(datapeps.login, p1);
         if (modalName === uiConstants.DataPepsUpdate) {
           history.push("/");
         }
@@ -80,6 +80,7 @@ function changePassword(p1, p2, modalName, datapeps) {
       } catch (e) {
         dispatch(failure(e));
       }
+      dispatch(uiActions.closeModal(modalName));
     }
   };
 

@@ -15,6 +15,7 @@ class ShareSelect extends React.Component {
   render() {
     return (
       <Select
+        id={"ShareSelect"}
         isMulti={true}
         placeholder={"Share with..."}
         onChange={options => this.props.onChange(options.map(o => o.value))}
