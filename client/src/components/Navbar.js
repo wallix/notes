@@ -11,7 +11,7 @@ import {
 
 import { parseJWT } from "../utils";
 import { uiConstants, authConstants } from "../constants";
-import { uiActions, usersActions, noteActions } from "../actions";
+import { uiActions, usersActions } from "../actions";
 import NewNote from "./NewNote";
 import ShareNote from "./ShareNote";
 import UserProfile from "./UserProfile";
