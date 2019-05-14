@@ -11,6 +11,8 @@ const fs = require("fs");
 const crypto = require("crypto"),
   shasum = crypto.createHash("sha1");
 
+let APIHost = "https://api.datapeps.com";
+
 if (process.env.PEPSCRYPTO_HOST) {
   process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
   let APIHost = "https://" + process.env.PEPSCRYPTO_HOST;
@@ -55,14 +57,10 @@ const createApp = async () => {
     }
   }
 
-  fs.writeFileSync(
-    __dirname + "/../.env.local",
-    `REACT_APP_DATAPEPS_APP_ID=${loginApp}`
-  );
-  fs.writeFileSync(
-    __dirname + "/../.env.test",
-    `REACT_APP_DATAPEPS_APP_ID=${loginApp}`
-  );
+  const dotEnv = `REACT_APP_DATAPEPS_API=${APIHost}\nREACT_APP_API_URL=http://localhost:8080\nREACT_APP_DATAPEPS_APP_ID=${loginApp}`;
+
+  fs.writeFileSync(__dirname + "/../.env.local", dotEnv);
+  fs.writeFileSync(__dirname + "/../.env.test", dotEnv);
 
   await new DataPeps.ApplicationAPI(session).putConfig(loginApp, {
     jwt: {

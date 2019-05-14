@@ -14,11 +14,7 @@
     "babel-loader": "^8.0.5"
   },
   "dependencies": {
-<<<<<<< HEAD
     "datapeps-sdk": "^1.0.3-dev-3d4d30",
-=======
-    "datapeps-sdk": "1.0.3-dev-595fbf",
->>>>>>> 154a10f... test(login): Remove need to change password on fist connect
     "history": "^4.9.0",
     "long": "^4.0.0",
     "react": "^16.8.6",
