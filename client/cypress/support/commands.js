@@ -30,3 +30,13 @@ Cypress.Commands.add("login", (login, pw) => {
   cy.get('[data-test="login-btn"]').click();
   cy.contains("button", "New Note", { timeout: 20000 }).should("exist");
 });
+
+Cypress.Commands.add("shareWith", shareWith => {
+  cy.get("#ShareSelect > div > div:first-child").click();
+  cy.get("#ShareSelect input").type(shareWith, { force: true });
+  cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").should(
+    "contain",
+    shareWith
+  );
+  cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").click();
+});
