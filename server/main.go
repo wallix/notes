@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt"
@@ -14,6 +15,30 @@ import (
 // Env represents the server environment (db, etc.)
 type Env struct {
 	db *gorm.DB
+}
+
+func GroupMembershipRequired(e *Env) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		groupID := c.Param("id")
+		owner := getOwner(c)
+		var login Login
+
+		// e.db.First(&group, "id = ?", groupID)
+		// e.db.First(&login, "username = ?", owner)
+		// err := e.db.Model(&group).Related(&login, "Users").Error
+		err := e.db.
+			Joins("JOIN group_users ON login_id = logins.id AND group_id = ?", groupID).
+			Where("username = ?", owner).
+			Find(&login).Error
+
+		if err != nil {
+			c.JSON(http.StatusForbidden, gin.H{"err": "You're not allowed to access or manage this group"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
 }
 
 func (e *Env) httpEngine() *gin.Engine {
@@ -65,11 +90,16 @@ func (e *Env) httpEngine() *gin.Engine {
 		auth.GET("/users", e.userListHandler)
 
 		auth.POST("/group", e.groupCreateHandler)
-		auth.POST("/group-notes/:groupID", e.noteGroupPostHandler)
-		auth.GET("/group-notes/:groupID", e.noteGroupListHandler)
-		auth.GET("/group/:id", e.groupGetHandler)
-		auth.PATCH("/group/:id", e.groupEditHandler)
 		auth.GET("/groups", e.groupListHandler)
+
+		group := auth.Group("/group/:id")
+		group.Use(GroupMembershipRequired(e))
+		{
+			group.GET("", e.groupGetHandler)
+			group.PATCH("", e.groupEditHandler)
+			group.GET("/notes", e.noteGroupListHandler)
+			group.POST("/notes", e.noteGroupPostHandler)
+		}
 
 		auth.POST("/share/:id/:with", e.noteShareHandler)
 		auth.GET("/share/notes", e.getSharedNotes)

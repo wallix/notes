@@ -6,13 +6,10 @@ const crypto = require("crypto"),
 shasum.update(new Date().getTime() + "");
 
 const seed = shasum.digest("hex").substring(0, 8);
-// const seed = `test1`;
+// const seed = `cooper`;
 
 const username = `alice.${seed}`;
-// const username = `alice-test-6`; // DO NOT COMMIT
-
 const password = `password1234=?`;
-// const password2 = `password567=!`;
 
 const formatedDate = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
@@ -157,13 +154,7 @@ describe(`Notes sharing ${seed}`, function() {
 
     const shareWith = `alice.0.${seed}`;
 
-    cy.get("#ShareSelect > div > div:first-child").click();
-    cy.get("#ShareSelect input").type(shareWith, { force: true });
-    cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").should(
-      "contain",
-      shareWith
-    );
-    cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").click();
+    cy.shareWith(shareWith);
     cy.contains("Save").click();
 
     cy.contains(".modal-footer", "Save", { timeout: 60000 }).should(
@@ -203,13 +194,8 @@ describe(`Notes sharing ${seed}`, function() {
     // Search alice.1
     const shareWith = `alice.1.${seed}`;
 
-    cy.get("#ShareSelect > div > div:first-child").click();
-    cy.get("#ShareSelect input").type(shareWith, { force: true });
-    cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").should(
-      "contain",
-      shareWith
-    );
-    cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").click();
+    cy.shareWith(shareWith);
+
     cy.contains("Save").click();
     cy.contains("Save").should("not.exist");
 
@@ -233,5 +219,43 @@ describe(`Notes sharing ${seed}`, function() {
     cy.contains("div.panel-body", encryptedSharedContent, {
       timeout: 10000
     }).should("exist");
+  });
+});
+
+describe(`Sharing with groups ${seed}`, () => {
+  const group1name = "Group test 1";
+  const sharedNoteTitle = `Shared note with group ${group1name}`;
+  const sharedNoteContent = `Note content shared with group ${group1name} -- ${formatedDate}`;
+
+  it(`Alice ${seed} create a group`, () => {
+    cy.visit("/");
+    cy.login(username, password);
+    cy.get('[data-test="new-group"]').click();
+    cy.get(".modal-body").within(() => {
+      cy.get("input:first").should("have.attr", "placeholder", "Name");
+      cy.get("input:first").type(group1name);
+      cy.shareWith(`alice.0.${seed}`);
+    });
+
+    cy.get('[data-test="save"]').click();
+    cy.contains(group1name).should("exist");
+  });
+
+  it(`Alice ${seed} edit a group`, () => {
+    cy.visit("/");
+    cy.login(username, password);
+    // Select the group
+    cy.contains(group1name).click();
+    // Create note
+    cy.contains("button", "New Note", {
+      timeout: 20000
+    }).click();
+    cy.get(".modal-body").within(() => {
+      cy.get("input").should("have.attr", "placeholder", "Title");
+      cy.get("input").type(sharedNoteTitle);
+      cy.get("textarea").should("have.attr", "placeholder", "Content");
+      cy.get("textarea").type(sharedNoteContent);
+    });
+    cy.contains("Save").click();
   });
 });

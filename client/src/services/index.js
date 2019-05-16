@@ -177,7 +177,7 @@ async function getGroupNotes(groupID) {
   };
 
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/group-notes/${groupID}`,
+    `${process.env.REACT_APP_API_URL}/auth/group/${groupID}/notes`,
     requestOptions
   );
   return handleResponse(response);
@@ -193,7 +193,7 @@ async function postNote(note, groupID, sharedWith) {
 
   const response = await fetch(
     `${process.env.REACT_APP_API_URL}/auth/${
-      groupID == null ? "notes" : `group-notes/${groupID}`
+      groupID == null ? "notes" : `group/${groupID}/notes`
     }`,
     requestOptions
   );

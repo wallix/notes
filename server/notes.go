@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -146,7 +147,7 @@ func (e *Env) noteGroupPostHandler(c *gin.Context) {
 	// set note owner
 	// note.Owner = getOwner(c)
 	// get the (optional) id from path
-	groupID := c.Param("groupID")
+	groupID := c.Param("id")
 	// create or update the note
 	err = e.createGroupNote(&note, groupID)
 	if err != nil {
@@ -162,7 +163,7 @@ func (e *Env) noteGroupPostHandler(c *gin.Context) {
 func (e *Env) noteGroupListHandler(c *gin.Context) {
 	var group Group
 	var notes []Note
-	groupID := c.Param("groupID")
+	groupID := c.Param("id")
 	err := e.db.Where("id = ?", groupID).First(&group).Error
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": err})

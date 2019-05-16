@@ -89,6 +89,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                 onClick={() => {
                   dispatch(uiActions.openModal(uiConstants.NewGroupModal));
                 }}
+                data-test="new-group"
               >
                 <Glyphicon glyph="plus" />
               </Button>
