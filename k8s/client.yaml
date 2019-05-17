@@ -23,8 +23,7 @@ kind: Service
 metadata:
   name: notes-client
 spec:
-  type: LoadBalancer
-  loadBalancerIP: 34.76.229.203
+  type: NodePort
   selector:
     app: notes-client
   ports:
