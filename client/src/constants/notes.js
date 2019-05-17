@@ -1,3 +1,5 @@
+import { getLogin } from "datapeps-sdk/src/Application";
+
 export const notesConstants = {
   ADD_NOTE: "NOTES_ADD_NOTE",
   DELETE_NOTE: "NOTES_DELETE_NOTE",
@@ -15,5 +17,8 @@ export const notesConstants = {
 };
 
 export function groupLogin(groupID) {
-  return `group-${groupID}-0-${process.env.REACT_APP_DATAPEPS_APP_ID}`;
+  return getLogin(
+    `group-${groupID}-${process.env.REACT_APP_GROUP_SEED}`,
+    process.env.REACT_APP_DATAPEPS_APP_ID
+  );
 }
