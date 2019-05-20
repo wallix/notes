@@ -40,7 +40,6 @@ class Navigation extends React.Component {
                   this.props.dispatch(
                     uiActions.openModal(uiConstants.NewNoteModal)
                   );
-                  this.props.dispatch(usersActions.getList());
                 }}
               >
                 New Note
