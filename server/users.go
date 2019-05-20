@@ -19,6 +19,7 @@ type Login struct {
 	Groups      []*Group `json:"-" gorm:"many2many:group_users;"`
 }
 
+// Group represents a group
 type Group struct {
 	gorm.Model
 	Name  string   `form:"name" json:"name" binding:"required"`
@@ -106,6 +107,7 @@ func (e *Env) userListHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"users": usernames})
 }
 
+// CreateGroupRequest format of create request
 type CreateGroupRequest struct {
 	Name  string
 	Users []string
@@ -152,6 +154,7 @@ func (e *Env) groupGetHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"group": group})
 }
 
+// GroupEditRequest format of edit request
 type GroupEditRequest struct {
 	Name  string
 	Users []string

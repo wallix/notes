@@ -17,7 +17,7 @@ type Env struct {
 	db *gorm.DB
 }
 
-func GroupMembershipRequired(e *Env) gin.HandlerFunc {
+func groupMembershipRequired(e *Env) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		groupID := c.Param("id")
 		owner := getOwner(c)
@@ -93,12 +93,13 @@ func (e *Env) httpEngine() *gin.Engine {
 		auth.GET("/groups", e.groupListHandler)
 
 		group := auth.Group("/group/:id")
-		group.Use(GroupMembershipRequired(e))
+		group.Use(groupMembershipRequired(e))
 		{
 			group.GET("", e.groupGetHandler)
 			group.PATCH("", e.groupEditHandler)
 			group.GET("/notes", e.noteGroupListHandler)
 			group.POST("/notes", e.noteGroupPostHandler)
+			group.DELETE("/notes/:noteId", e.noteGroupDeleteHandler)
 		}
 
 		auth.POST("/share/:id/:with", e.noteShareHandler)

@@ -222,3 +222,24 @@ func (e *Env) noteDelete(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func (e *Env) noteGroupDeleteHandler(c *gin.Context) {
+	var note Note
+	groupID := c.Param("id")
+	noteID := c.Param("noteId")
+	// retrieve the note
+	err := e.db.
+		Joins("JOIN note_groups ON note_id = notes.id AND group_id = ?", groupID).
+		Where("ID = ?", noteID).First(&note).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"err": err})
+		return
+	}
+	// soft delete the note
+	err = e.db.Delete(&note).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
+}

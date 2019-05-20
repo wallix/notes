@@ -49,6 +49,26 @@ func getJSON(t *testing.T, url string, token string, expectedStatus int) (map[st
 	return m, nil
 }
 
+func deleteJSON(t *testing.T, url string, token string, expectedStatus int) (map[string]interface{}, error) {
+	var m map[string]interface{}
+	request, err := http.NewRequest("DELETE", url, strings.NewReader(""))
+	if err != nil {
+		return m, err
+	}
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer "+token)
+
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+
+	if response.Code != expectedStatus {
+		t.Errorf("Status code expected %v, got: %v", expectedStatus, response.Code)
+	}
+
+	err = json.NewDecoder(response.Body).Decode(&m)
+	return m, nil
+}
+
 // Utility function to POST JSON and get JSON result
 // TODO: extract Bearer
 func methodJSON(t *testing.T, method string, url string, data map[string]interface{}, token *string, expectedStatus int) (map[string]interface{}, error) {
@@ -409,6 +429,91 @@ func TestGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
+}
+
+func TestGroupNoteDelete(t *testing.T) {
+	var err error
+	user1 := map[string]interface{}{
+		"username": "toto_group_2",
+		"password": "totopass2",
+	}
+	group := map[string]interface{}{
+		"name":  "my group",
+		"users": []string{user1["username"].(string)},
+	}
+	// create 1 users
+	_, err = postJSON(t, "/subscribe", user1, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	// login first user and get token
+	result, err := postJSON(t, "/login", user1, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	token1 := result["token"].(string)
+
+	note := map[string]interface{}{
+		"title":   "title",
+		"content": "content",
+	}
+	// user1 creates note and get ID
+	result, err = postJSON(t, "/auth/notes", note, &token1, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	noteID := int(result["noteID"].(float64))
+
+	// user1 creates the group
+	result, err = postJSON(t, "/auth/group", group, &token1, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	groupID := result["id"]
+
+	// post note in the group
+	note = map[string]interface{}{
+		"title":   "this is title group note",
+		"content": "this is content group note",
+	}
+	result, err = postJSON(t, fmt.Sprintf("/auth/group/%v/notes", groupID), note, &token1, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+
+	// get notes and check length
+	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v/notes", groupID), token1, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	notes := result["notes"].([]interface{})
+	if len(notes) != 1 {
+		t.Fatalf("Wrong number of notes: %v", len(notes))
+	}
+	note0 := notes[0].(map[string]interface{})
+
+	// DELETE the note
+	result, err = deleteJSON(t, fmt.Sprintf("/auth/group/%v/notes/%v", groupID, note0["ID"]), token1, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+
+	// get notes and check length
+	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v/notes", groupID), token1, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	notes = result["notes"].([]interface{})
+	if len(notes) != 0 {
+		t.Fatalf("Wrong number of notes: %v", len(notes))
+	}
+
+	// DELETE the note using group authorisation and fail
+	result, err = deleteJSON(t, fmt.Sprintf("/auth/group/%v/notes/%v", groupID, noteID), token1, 404)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+
 }
 
 func hasGroups(t *testing.T, expected []string, groups []interface{}) {
