@@ -97,7 +97,7 @@ func openEnv(name string) *Env {
 }
 
 func main() {
-	env := openEnv("./notes-db/notes.db")
+	env := openEnv("./notes-db/notesD.db")
 	defer env.db.Close()
 	env.httpEngine().Run()
 }
