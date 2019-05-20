@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Row, Col, Glyphicon } from "react-bootstrap";
+import { Row, Col, Glyphicon, Button } from "react-bootstrap";
 
 import "./NoteList.css";
 
@@ -8,11 +8,13 @@ import Note from "./Note";
 import { uiActions, usersActions } from "../actions";
 import { uiConstants } from "../constants";
 import NewGroup from "./NewGroup";
+import ShareGroup from "./ShareGroup";
 
 const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
   return (
     <div>
       <NewGroup />
+      <ShareGroup />
       <Row className="notes-sidebar">
         <Col sm={3}>
           <ul
@@ -58,7 +60,25 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                     dispatch(usersActions.selectGroup(group));
                   }}
                 >
-                  {group.name}
+                  <span>{group.name}</span>
+                  <span
+                    style={{ float: "right" }}
+                    onClick={() => {
+                      this.props.dispatch(usersActions.refresh());
+                    }}
+                  >
+                    <Glyphicon
+                      onClick={e => {
+                        e.stopPropagation();
+                        dispatch(
+                          uiActions.openModal(uiConstants.ShareGroupModal, {
+                            group
+                          })
+                        );
+                      }}
+                      glyph="edit"
+                    />
+                  </span>
                 </a>
               </li>
             ))}

@@ -48,7 +48,7 @@ class Navigation extends React.Component {
               <Button
                 style={{ marginLeft: "15px" }}
                 onClick={() => {
-                  this.props.dispatch(noteActions.getNotes());
+                  this.props.dispatch(usersActions.refresh());
                 }}
               >
                 <Glyphicon glyph="refresh" />
