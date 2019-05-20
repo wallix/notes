@@ -1,37 +1,64 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: note-server-deployment
+  name: notes-server
 spec:
   selector:
     matchLabels:
-      app: note-server
+      app: notes-server
   template:
     metadata:
       labels:
-        app: note-server
+        app: notes-server
     spec:
       containers:
-      - name: note-server
-        image: note-server
-        resources:
-          requests:
-            memory: "32Mi"
-            cpu: "100m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 8080
+        - name: notes-server
+          image: gcr.io/peps-146814/notes-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: notes-server-db
+              mountPath: /notes-db
+      volumes:
+        - name: notes-server-db
+          persistentVolumeClaim:
+            claimName: notes-server-db
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: note-server-service
+  name: notes-server
 spec:
   type: LoadBalancer
+  loadBalancerIP: 35.205.229.100
   selector:
-    app: note-server
+    app: notes-server
   ports:
-  - port: 3000
-    targetPort: 8080
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: notes-server-db
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 100G
+  accessModes:
+    - ReadWriteOnce
+  gcePersistentDisk:
+    pdName: notes-server-db
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: notes-server-db
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100G
