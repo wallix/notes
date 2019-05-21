@@ -1,5 +1,6 @@
-import { notesConstants, uiConstants, groupLogin } from "../constants";
+import { notesConstants, uiConstants } from "../constants";
 import { notesService } from "../services";
+import { groupLogin } from "../services/utils";
 import { uiActions } from "./ui";
 import { ResourceAPI } from "datapeps-sdk";
 

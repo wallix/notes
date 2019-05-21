@@ -3,9 +3,10 @@ import { connect } from "react-redux";
 import { Modal, Button, Form } from "react-bootstrap";
 import ShareSelect from "./ShareSelect";
 
-import { uiConstants, groupLogin } from "../constants";
+import { uiConstants } from "../constants";
 import { uiActions } from "../actions";
 import { IdentityAPI } from "datapeps-sdk";
+import { groupLogin } from "../services/utils";
 
 class ShareGroup extends React.Component {
   constructor(props, context) {
@@ -31,7 +32,6 @@ class ShareGroup extends React.Component {
     if (group == null) {
       return null;
     }
-    console.log("ShareGroup", group);
     return (
       <div>
         <Modal

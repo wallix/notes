@@ -1,0 +1,135 @@
+import { ResourceAPI, ID, getLogin } from "datapeps-sdk";
+
+import { handleResponse, authHeader, groupLogin } from "./utils";
+import store from "../store";
+
+export async function postNote(note, groupID, sharedWith) {
+  note = await encryptNote(note, groupID, sharedWith);
+  const requestOptions = {
+    method: "POST",
+    headers: authHeader(true),
+    body: JSON.stringify(note)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/${
+      groupID == null ? "notes" : `group/${groupID}/notes`
+    }`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
+export async function getNotes() {
+  const requestOptions = {
+    method: "GET",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/notes`,
+    requestOptions
+  );
+  return handleNotesResponse(response);
+}
+
+export async function getSharedNotes() {
+  const requestOptions = {
+    method: "GET",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/share/notes`,
+    requestOptions
+  );
+  return handleNotesResponse(response);
+}
+
+export async function getGroupNotes(groupID) {
+  const requestOptions = {
+    method: "GET",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/group/${groupID}/notes`,
+    requestOptions
+  );
+  return handleNotesResponse(response);
+}
+
+export async function deleteNote(id) {
+  const requestOptions = {
+    method: "DELETE",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/notes/${id}`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
+export async function shareNote(id, sharedWith) {
+  const requestOptions = {
+    method: "POST",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/share/${id}/${sharedWith}`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
+async function handleNotesResponse(response, groupID) {
+  const { notes } = await handleResponse(response);
+  console.log("handleNotesResponse", notes);
+  return { notes: await Promise.all(notes.map(decryptNote)) };
+}
+
+async function encryptNote(note, groupID, sharedWith) {
+  let datapeps = store.getState().auth.datapeps;
+  let sharingGroup = groupID == null ? [datapeps.login] : [groupLogin(groupID)];
+  if (sharedWith != null) {
+    sharingGroup = sharingGroup.concat(
+      sharedWith.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
+    );
+  }
+  const resource = await new ResourceAPI(datapeps).create(
+    "note",
+    {
+      description: note.title,
+      URI: `${process.env.REACT_APP_API_URL}/auth/notes`,
+      MIMEType: "text/plain"
+    },
+    sharingGroup
+  );
+  return {
+    ...note,
+    title: ID.clip(resource.id, resource.encrypt(note.title)),
+    content: resource.encrypt(note.content),
+    resourceID: resource.id
+  };
+}
+
+async function decryptNote(note) {
+  try {
+    const {
+      auth: { datapeps },
+      selectedGroup: group
+    } = store.getState();
+    const { id, data: encryptedTitle } = ID.unclip(note.Title);
+    const api = new ResourceAPI(datapeps);
+    const options = group == null ? null : { assume: groupLogin(group.ID) };
+    const resource = await api.get(id, options);
+    const Title = resource.decrypt(encryptedTitle);
+    const Content = resource.decrypt(note.Content);
+    return { ...note, Title, Content, resourceID: id };
+  } catch (e) {
+    return { ...note, Content: e.message };
+  }
+}

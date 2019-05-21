@@ -1,4 +1,5 @@
 import store from "../store";
+import { getLogin } from "datapeps-sdk";
 
 export async function handleResponse(response) {
   const text = await response.text();
@@ -20,4 +21,11 @@ export function authHeader(isJSON) {
   } else {
     return res;
   }
+}
+
+export function groupLogin(groupID) {
+  return getLogin(
+    `group-${groupID}-${process.env.REACT_APP_GROUP_SEED}`,
+    process.env.REACT_APP_DATAPEPS_APP_ID
+  );
 }

@@ -1,10 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { noteActions, uiActions, usersActions } from "../actions";
-import { ID } from "datapeps-sdk";
-import { ResourceAPI } from "datapeps-sdk";
 import { NoteLayout } from "./NoteLayout";
-import { uiConstants, groupLogin } from "../constants";
+import { uiConstants } from "../constants";
 
 class Note extends React.Component {
   constructor(props) {
@@ -43,34 +41,9 @@ class Note extends React.Component {
       />
     );
   }
-
-  componentWillMount() {
-    this.decryptNote();
-  }
-  async decryptNote() {
-    try {
-      const { datapeps, group } = this.props;
-      const { id, data: encryptedTitle } = ID.unclip(this.state.Title);
-      const api = new ResourceAPI(datapeps);
-      const options = group == null ? null : { assume: groupLogin(group.ID) };
-      const resource = await api.get(id, options);
-      const Title = resource.decrypt(encryptedTitle);
-      const Content = resource.decrypt(this.state.Content);
-      this.setState({
-        Title,
-        Content,
-        style: "warning",
-        resourceId: id
-      });
-      this.props.getSharedWith(this.props.ID, id);
-    } catch (err) {
-      console.log("decryptNote: ", err);
-    }
-  }
 }
 
 const mapStateToProps = state => ({
-  datapeps: state.auth.datapeps,
   group: state.selectedGroup
 });
 const mapDispatchToProps = {
