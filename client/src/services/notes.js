@@ -46,6 +46,17 @@ export async function getSharedNotes() {
   return handleNotesResponse(response);
 }
 
+export async function getSharedWith(note) {
+  const {
+    auth: { datapeps },
+    selectedGroup: group
+  } = store.getState();
+  const rApi = new ResourceAPI(datapeps);
+  const options = group == null ? null : { assume: groupLogin(group.ID) };
+  const sharing = await rApi.getSharingGroup(note.resourceID, options);
+  return sharing.map(s => s.identityID.login).filter(l => l !== datapeps.login);
+}
+
 export async function getGroupNotes(groupID) {
   const requestOptions = {
     method: "GET",
@@ -72,17 +83,26 @@ export async function deleteNote(id) {
   return handleResponse(response);
 }
 
-export async function shareNote(id, sharedWith) {
-  const requestOptions = {
-    method: "POST",
-    headers: authHeader(false)
-  };
-
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/share/${id}/${sharedWith}`,
-    requestOptions
+export async function shareNote(note, sharingList) {
+  if (sharingList == null || sharingList.length === 0) {
+    return;
+  }
+  let datapeps = store.getState().auth.datapeps;
+  await new ResourceAPI(datapeps).extendSharingGroup(
+    note.resourceID,
+    sharingList.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
   );
-  return handleResponse(response);
+  await sharingList.map(u => {
+    const requestOptions = {
+      method: "POST",
+      headers: authHeader(false)
+    };
+
+    return fetch(
+      `${process.env.REACT_APP_API_URL}/auth/share/${note.ID}/${u}`,
+      requestOptions
+    );
+  });
 }
 
 async function handleNotesResponse(response, groupID) {
@@ -108,11 +128,11 @@ async function encryptNote(note, groupID, sharedWith) {
     },
     sharingGroup
   );
+  note.resourceID = resource.id;
   return {
     ...note,
     title: ID.clip(resource.id, resource.encrypt(note.title)),
-    content: resource.encrypt(note.content),
-    resourceID: resource.id
+    content: resource.encrypt(note.content)
   };
 }
 

@@ -1,8 +1,6 @@
 import { notesConstants, uiConstants } from "../constants";
 import { notesService } from "../services";
-import { groupLogin } from "../services/utils";
 import { uiActions } from "./ui";
-import { ResourceAPI } from "datapeps-sdk";
 
 function addNote(title, content, sharedIds) {
   return (dispatch, getState) => {
@@ -43,11 +41,10 @@ function postNote(note, sharedWith, groupID) {
 
     try {
       const response = await notesService.postNote(note, groupID, sharedWith);
-      let share = await Promise.all(
-        sharedWith.map(id => notesService.shareNote(response.noteID, id))
-      );
-      dispatch(success(response.noteID, share));
-      dispatch({ ...note, id: response.noteID });
+      note.ID = response.noteID;
+      await notesService.shareNote(note, sharedWith);
+      dispatch(success(note.ID));
+      dispatch({ ...note });
     } catch (error) {
       dispatch(failure(error));
     }
@@ -121,42 +118,8 @@ function getNotes(group) {
   }
 }
 
-function getSharedWith(id, resourceId) {
-  return async (dispatch, getState) => {
-    dispatch(request());
-    const datapeps = getState().auth.datapeps;
-    const group = getState().auth.selectedGroup;
-    try {
-      const rApi = new ResourceAPI(datapeps);
-      const options = group == null ? null : { assume: groupLogin(group.ID) };
-      const sharing = await rApi.getSharingGroup(resourceId, options);
-      dispatch(
-        success(
-          sharing.map(s => s.identityID.login).filter(l => l !== datapeps.login)
-        )
-      );
-    } catch (err) {
-      dispatch(failure(err));
-    }
-  };
-  function request() {
-    return { type: notesConstants.GETSHARING_REQUEST };
-  }
-  function success(grp) {
-    return {
-      type: notesConstants.GETSHARING_SUCCESS,
-      id,
-      sharedWith: grp
-    };
-  }
-  function failure(error) {
-    return { type: notesConstants.GETSHARING_FAILURE, error };
-  }
-}
-
 export const noteActions = {
   addNote,
   deleteNote,
-  getNotes,
-  getSharedWith
+  getNotes
 };

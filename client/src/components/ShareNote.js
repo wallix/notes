@@ -5,7 +5,6 @@ import ShareSelect from "./ShareSelect";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
-import { ResourceAPI } from "datapeps-sdk";
 import { notesService } from "../services";
 
 class ShareNote extends React.Component {
@@ -25,21 +24,8 @@ class ShareNote extends React.Component {
 
   render() {
     const { modals, payload, closeModal } = this.props;
-    let sharingList;
-    if (payload && payload.id) {
-      sharingList = (
-        <>
-          <p>Shared with:</p>
-          <ul>
-            {this.props.notes
-              .find(n => n.ID === payload.id)
-              .SharedWith.map(u => (
-                <li key={u}>{u}</li>
-              ))}
-          </ul>
-        </>
-      );
-    }
+    const { sharedWith } = this.state;
+    console.log("ShareNote", this.state, payload);
 
     return (
       <div>
@@ -51,7 +37,16 @@ class ShareNote extends React.Component {
             <Modal.Title>Extends share of note with...</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {sharingList}
+            <p>Shared with:</p>
+            <div className="panel">
+              {sharedWith == null
+                ? null
+                : sharedWith.map(login => (
+                    <span key={login} className="label label-success">
+                      {login}
+                    </span>
+                  ))}
+            </div>
             <Form onSubmit={this.onShareNote}>
               <ShareSelect onChange={this.changeSharingGroup} />
             </Form>
@@ -75,19 +70,31 @@ class ShareNote extends React.Component {
     );
   }
 
+  componentWillReceiveProps(props) {
+    if (props != null && props.payload != null) {
+      this.loadShareWith(props);
+    }
+  }
+
+  async loadShareWith(props) {
+    const note = props.payload.note;
+    if (note == null) {
+      return;
+    }
+    let sharedWith = await notesService.getSharedWith(note);
+    this.setState({ sharedWith });
+  }
+
   async onShareNote() {
-    const { datapeps, payload } = this.props;
-    await new ResourceAPI(datapeps).extendSharingGroup(
-      this.props.payload.resourceId,
-      this.state.sharingList.map(
-        u => `${u}@${process.env.REACT_APP_DATAPEPS_APP_ID}`
-      )
-    );
-    await this.state.sharingList.map(u =>
-      notesService.shareNote(payload.id, u)
-    );
-    this.props.getSharedWith(payload.id, payload.resourceId);
-    this.props.closeModal(uiConstants.ShareNoteModal);
+    try {
+      const {
+        payload: { note }
+      } = this.props;
+      notesService.shareNote(note, this.state.sharingList);
+      this.props.closeModal(uiConstants.ShareNoteModal);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
 

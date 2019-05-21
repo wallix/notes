@@ -10,8 +10,7 @@ class Note extends React.Component {
     this.state = {
       Title: props.Title,
       Content: props.Content,
-      style: "info",
-      resourceId: null
+      style: "info"
     };
   }
 
@@ -32,8 +31,7 @@ class Note extends React.Component {
           openShareModal: () => {
             this.props.getUserList();
             this.props.openModal(uiConstants.ShareNoteModal, {
-              id: this.props.ID,
-              resourceId: this.state.resourceId
+              note: this.props
             });
           },
           group
