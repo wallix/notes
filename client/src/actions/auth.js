@@ -1,59 +1,22 @@
 import { authConstants, uiConstants } from "../constants";
 import { authService } from "../services";
 import { uiActions } from "./index";
-import { history } from "../history";
-import { ApplicationJWT } from "datapeps-sdk";
-import { SDKError } from "datapeps-sdk";
 
 function login(username, password) {
   return async dispatch => {
     dispatch(request());
-
     try {
-      const connector = {
-        createSession: async (login, password) =>
-          await authService.login(login, password),
-        getToken: async user => user.token
-      };
-      const {
-        session: datapeps,
-        appSession: user,
-        isNew: firstTime
-      } = await ApplicationJWT.createSession(
-        process.env.REACT_APP_DATAPEPS_APP_ID,
-        username,
-        password,
-        connector
-      );
-      dispatch(success(user, datapeps));
-      if (firstTime) {
-        dispatch(uiActions.openModal(uiConstants.DataPepsUpdate));
-      }
+      dispatch(success(await authService.login(username, password)));
     } catch (error) {
-      if (error.kind) {
-        // Error come from pepsdk
-        switch (error.kind) {
-          case SDKError.IdentityInvalidKeySet:
-            const message = "Incorrect Password";
-            dispatch(failure(message));
-            dispatch(uiActions.error(message));
-            break;
-          default:
-            dispatch(failure(error.message));
-            dispatch(uiActions.error(error.message));
-            break;
-        }
-      } else {
-        dispatch(failure(error));
-        dispatch(uiActions.error(error));
-      }
+      dispatch(failure(error));
+      dispatch(uiActions.error(error.message));
     }
   };
 
   function request() {
     return { type: authConstants.LOGIN_REQUEST };
   }
-  function success(user, datapeps) {
+  function success({ user, datapeps }) {
     return { type: authConstants.LOGIN_SUCCESS, user, datapeps };
   }
   function failure(error) {
@@ -62,19 +25,18 @@ function login(username, password) {
 }
 
 function logout() {
-  authService.logout();
-  return { type: authConstants.LOGOUT };
+  return async dispatch => {
+    await authService.logout();
+    return dispatch({ type: authConstants.LOGOUT });
+  };
 }
 
-function changePassword(p1, p2, modalName, datapeps) {
+function changePassword(p1, p2, modalName) {
   return async dispatch => {
     if (p1 === p2) {
       dispatch(request());
       try {
-        await datapeps.renewKeys(p1);
-        if (modalName === uiConstants.DataPepsUpdate) {
-          history.push("/");
-        }
+        await authService.updatePassword(p1);
         dispatch(success());
       } catch (e) {
         dispatch(failure(e));
