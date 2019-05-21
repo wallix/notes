@@ -14,6 +14,10 @@
 
 .notes-sidebar .nav-link {
   text-align: center;
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+  width: 100%;
 }
 
 .notes-sidebar .nav {
