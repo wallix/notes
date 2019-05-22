@@ -32,7 +32,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                 }}
               >
                 My Notes
-              </Button>
+              </span>
             </li>
           </ul>
           <ul
@@ -42,9 +42,9 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
             aria-orientation="vertical"
           >
             <li className="nav-item disabled">
-              <Button className="nav-link" href="#">
+              <span className="nav-link" href="#">
                 {groups.length} groups
-              </Button>
+              </span>
             </li>
             {groups.map(group => (
               <li
@@ -55,7 +55,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                     : ""
                 }`}
               >
-                <Button
+                <span
                   className="nav-link"
                   onClick={() => {
                     dispatch(usersActions.selectGroup(group));
@@ -80,11 +80,11 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                       glyph="edit"
                     />
                   </span>
-                </Button>
+                </span>
               </li>
             ))}
             <li className="nav-item">
-              <Button
+              <span
                 className="nav-link"
                 onClick={() => {
                   dispatch(uiActions.openModal(uiConstants.NewGroupModal));
@@ -92,7 +92,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                 data-test="new-group"
               >
                 <Glyphicon glyph="plus" />
-              </Button>
+              </span>
             </li>
           </ul>
         </Col>
