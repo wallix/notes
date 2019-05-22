@@ -2,17 +2,8 @@ import { notesConstants, authConstants } from "../constants";
 
 export const notes = (state = [], action) => {
   switch (action.type) {
-    case notesConstants.ADD_NOTE:
-      return [
-        ...state,
-        {
-          ID: action.id,
-          Title: action.title,
-          Content: action.content,
-          DeletedAt: null,
-          SharedWith: null
-        }
-      ];
+    case notesConstants.POST_SUCCESS:
+      return [...state, action.note];
     case notesConstants.DELETE_NOTE:
       return state.map(note =>
         note.ID === action.id

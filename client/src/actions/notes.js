@@ -2,12 +2,12 @@ import { notesConstants, uiConstants } from "../constants";
 import { notesService } from "../services";
 import { uiActions } from "./ui";
 
-function addNote(title, content, sharedIds) {
+function addNote(Title, Content, sharedIds) {
   return (dispatch, getState) => {
     let note = {
       type: notesConstants.ADD_NOTE,
-      title,
-      content
+      Title,
+      Content
     };
     const group = getState().selectedGroup;
     if (group == null) {
@@ -43,8 +43,7 @@ function postNote(note, sharedWith, groupID) {
       const response = await notesService.postNote(note, groupID, sharedWith);
       note.ID = response.noteID;
       await notesService.shareNote(note, sharedWith);
-      dispatch(success(note.ID));
-      dispatch({ ...note });
+      dispatch(success(note));
     } catch (error) {
       dispatch(failure(error));
     }
@@ -52,8 +51,8 @@ function postNote(note, sharedWith, groupID) {
   function request() {
     return { type: notesConstants.POST_REQUEST };
   }
-  function success(id, sharedWith) {
-    return { type: notesConstants.POST_SUCCESS, id: id, sharedWith };
+  function success(note) {
+    return { type: notesConstants.POST_SUCCESS, note };
   }
   function failure(error) {
     return { type: notesConstants.POST_FAILURE, error };

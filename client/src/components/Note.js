@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { noteActions, uiActions, usersActions } from "../actions";
+import { noteActions, uiActions } from "../actions";
 import { NoteLayout } from "./NoteLayout";
 import { uiConstants } from "../constants";
 
