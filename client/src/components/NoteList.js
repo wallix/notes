@@ -24,7 +24,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
             aria-orientation="vertical"
           >
             <li className={`nav-item ${selectedGroup == null ? "active" : ""}`}>
-              <Button
+              <span
                 className="nav-link"
                 href="#"
                 onClick={() => {
