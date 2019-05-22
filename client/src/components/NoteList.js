@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Row, Col, Glyphicon, Button } from "react-bootstrap";
+import { Row, Col, Glyphicon } from "react-bootstrap";
 
 import "./NoteList.css";
 
