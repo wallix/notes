@@ -101,8 +101,7 @@ class ShareNote extends React.Component {
 const mapStateToProps = state => ({
   modals: state.modals.modals,
   payload: state.modals.payload,
-  notes: state.notes,
-  datapeps: state.auth.datapeps
+  notes: state.notes
 });
 const mapDispatchToProps = {
   ...uiActions,

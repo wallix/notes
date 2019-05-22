@@ -5,7 +5,7 @@ import ShareSelect from "./ShareSelect";
 
 import { uiConstants } from "../constants";
 import { uiActions } from "../actions";
-import { IdentityAPI } from "datapeps-sdk";
+import { IdentityAPI, getLogin } from "datapeps-sdk";
 import { groupLogin } from "../services/utils";
 
 class ShareGroup extends React.Component {
@@ -72,8 +72,8 @@ class ShareGroup extends React.Component {
     } = this.props;
     await new IdentityAPI(datapeps).replaceSharingGroup(
       groupLogin(group.ID),
-      this.state.sharingList.map(
-        u => `${u}@${process.env.REACT_APP_DATAPEPS_APP_ID}`
+      this.state.sharingList.map(u =>
+        getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID)
       )
     );
     this.props.closeModal(uiConstants.ShareGroupModal);

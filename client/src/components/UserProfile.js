@@ -145,8 +145,7 @@ class UserProfile extends React.Component {
                   : props.changePassword(
                       this.state.password1,
                       this.state.password2,
-                      props.modalName,
-                      props.datapeps
+                      props.modalName
                     );
               }}
               disabled={this.check() !== 0}
@@ -164,8 +163,7 @@ class UserProfile extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  modals: state.modals.modals,
-  datapeps: state.auth.datapeps
+  modals: state.modals.modals
 });
 const mapDispatchToProps = {
   ...uiActions,

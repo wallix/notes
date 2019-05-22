@@ -3,28 +3,6 @@ import { usersService } from "../services";
 import { uiActions } from "./ui";
 import { noteActions } from "./notes";
 
-function getList(search) {
-  return async dispatch => {
-    dispatch(request());
-
-    try {
-      const response = await usersService.getUsers(search);
-      dispatch(success(response.users));
-    } catch (error) {
-      dispatch(failure(error));
-    }
-  };
-  function request() {
-    return { type: usersConstants.GETUSERLIST_REQUEST };
-  }
-  function success(users) {
-    return { type: usersConstants.GETUSERLIST_SUCCESS, users };
-  }
-  function failure(error) {
-    return { type: usersConstants.GETUSERLIST_FAILURE, error };
-  }
-}
-
 function getGroups() {
   return async dispatch => {
     dispatch(request());
@@ -125,7 +103,6 @@ function refresh() {
 }
 
 export const usersActions = {
-  getList,
   getGroups,
   addGroup,
   selectGroup,

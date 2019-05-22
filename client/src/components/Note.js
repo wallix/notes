@@ -29,7 +29,6 @@ class Note extends React.Component {
           style,
           SharedWith,
           openShareModal: () => {
-            this.props.getUserList();
             this.props.openModal(uiConstants.ShareNoteModal, {
               note: this.props
             });
@@ -46,8 +45,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = {
   ...noteActions,
-  ...uiActions,
-  getUserList: usersActions.getList
+  ...uiActions
 };
 
 export default connect(
