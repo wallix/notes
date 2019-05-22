@@ -12,12 +12,6 @@ export const notes = (state = [], action) => {
       );
     case notesConstants.GETALL_SUCCESS:
       return [...action.notes.notes];
-    case notesConstants.GETSHARING_SUCCESS:
-      return state.map(note =>
-        note.ID === action.id
-          ? { ...note, SharedWith: action.sharedWith }
-          : note
-      );
     case authConstants.LOGOUT:
       return [];
     default:
