@@ -131,8 +131,8 @@ async function encryptNote(note, groupID, sharedWith) {
   note.resourceID = resource.id;
   return {
     ...note,
-    title: ID.clip(resource.id, resource.encrypt(note.title)),
-    content: resource.encrypt(note.content)
+    Title: ID.clip(resource.id, resource.encrypt(note.Title)),
+    Content: resource.encrypt(note.Content)
   };
 }
 
