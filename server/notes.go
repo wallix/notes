@@ -214,7 +214,7 @@ func (e *Env) noteDelete(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
 		return
 	}
-	// delete the note
+	// delete the note. TODO : remove users from sharer
 	err = e.db.Delete(&note).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
@@ -225,18 +225,24 @@ func (e *Env) noteDelete(c *gin.Context) {
 
 func (e *Env) noteGroupDeleteHandler(c *gin.Context) {
 	var note Note
+	var group Group
 	groupID := c.Param("id")
 	noteID := c.Param("noteId")
-	// retrieve the note
-	err := e.db.
+	// Check the relation between the group and the note
+	if e.db.
 		Joins("JOIN note_groups ON note_id = notes.id AND group_id = ?", groupID).
-		Where("ID = ?", noteID).First(&note).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": err})
+		First(&note, noteID).RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{"err": "Not Found"})
 		return
 	}
-	// soft delete the note
-	err = e.db.Delete(&note).Error
+	// Get the group
+	err := e.db.First(&group, groupID).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	// delete the group association with the note
+	err = e.db.Model(&note).Association("Groups").Delete(&group).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return

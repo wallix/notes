@@ -20,15 +20,21 @@ function addNote(Title, Content, sharedIds) {
 }
 
 function deleteNote(id) {
-  return dispatch => {
+  return (dispatch, getState) => {
     let del = {
       type: notesConstants.DELETE_NOTE,
       id
     };
-
-    notesService
-      .deleteNote(id)
-      .then(ok => dispatch(del), error => dispatch(failure(error)));
+    const group = getState().selectedGroup;
+    if (group) {
+      notesService
+        .deleteGroupNote(id, group.ID)
+        .then(ok => dispatch(del), error => dispatch(failure(error)));
+    } else {
+      notesService
+        .deleteNote(id)
+        .then(ok => dispatch(del), error => dispatch(failure(error)));
+    }
   };
   function failure(error) {
     return { type: notesConstants.DEL_FAILURE, error };
@@ -37,7 +43,7 @@ function deleteNote(id) {
 
 function postNote(note, sharedWith, groupID) {
   return async dispatch => {
-    dispatch(request(note, sharedWith, groupID));
+    dispatch(request(sharedWith, groupID));
 
     try {
       const response = await notesService.postNote(note, groupID, sharedWith);
@@ -48,8 +54,8 @@ function postNote(note, sharedWith, groupID) {
       dispatch(failure(error));
     }
   };
-  function request() {
-    return { type: notesConstants.POST_REQUEST };
+  function request(id, sharedWith) {
+    return { type: notesConstants.POST_REQUEST, id, sharedWith };
   }
   function success(note) {
     return { type: notesConstants.POST_SUCCESS, note };

@@ -83,6 +83,19 @@ export async function deleteNote(id) {
   return handleResponse(response);
 }
 
+export async function deleteGroupNote(id, groupId) {
+  const requestOptions = {
+    method: "DELETE",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/group/${groupId}/notes/${id}`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
 export async function shareNote(note, sharingList) {
   if (sharingList == null || sharingList.length === 0) {
     return;

@@ -18,9 +18,9 @@ export const NoteLayout = ({
       <Panel.Title componentClass="h3">{Title}</Panel.Title>
     </Panel.Heading>
     <Panel.Body>{Content}</Panel.Body>
-    {group != null ? null : (
-      <Panel.Footer className="text-right">
-        <ButtonGroup>
+    <Panel.Footer className="text-right">
+      <ButtonGroup>
+        {group != null ? null : (
           <Button onClick={openShareModal} data-test="share">
             <Glyphicon
               className={
@@ -29,13 +29,13 @@ export const NoteLayout = ({
               glyph="share"
             />
           </Button>
-          {DeletedAt || (
-            <Button bsStyle={style} onClick={() => deleteNote(ID)}>
-              <Glyphicon glyph="trash" />
-            </Button>
-          )}
-        </ButtonGroup>
-      </Panel.Footer>
-    )}
+        )}
+        {DeletedAt || (
+          <Button bsStyle={style} onClick={() => deleteNote(ID)}>
+            <Glyphicon glyph="trash" />
+          </Button>
+        )}
+      </ButtonGroup>
+    </Panel.Footer>
   </Panel>
 );

@@ -239,7 +239,7 @@ describe(`Sharing with groups ${seed}`, () => {
     cy.contains(group1name).should("exist");
   });
 
-  it(`alice ${seed} edit a group`, () => {
+  it(`alice ${seed} add a note to the group`, () => {
     cy.visit("/");
     cy.login(username, password);
     // Select the group
@@ -255,5 +255,33 @@ describe(`Sharing with groups ${seed}`, () => {
       cy.get("textarea").type(sharedNoteContent);
     });
     cy.contains("Save").click();
+    cy.contains(".panel-body", sharedNoteContent, { timeout: 30000 }).should(
+      "exist"
+    );
+  });
+
+  it(`Alice ${seed} delete the group's note`, () => {
+    cy.visit("/");
+    cy.login(username, password);
+    // Select the group
+    cy.contains(group1name).click();
+
+    cy.contains(".panel-body", sharedNoteContent, { timeout: 30000 }).should(
+      "exist"
+    );
+    cy.contains(sharedNoteContent)
+      .parent(".panel")
+      .within(() => {
+        cy.get("button").click();
+      });
+    // Note should display in red and hide delete button
+    cy.contains(sharedNoteContent)
+      .parent(".panel")
+      .within(() => {
+        cy.get("button").should("not.exist");
+      });
+    // Force refresh, note should disapear
+    cy.get('[data-test="refresh"]').click();
+    cy.contains(sharedNoteContent).should("not.exist");
   });
 });

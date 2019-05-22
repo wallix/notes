@@ -507,8 +507,7 @@ func TestGroupNoteDelete(t *testing.T) {
 	if len(notes) != 0 {
 		t.Fatalf("Wrong number of notes: %v", len(notes))
 	}
-
-	// DELETE the note using group authorisation and fail
+	// DELETE the note using group authorization and fail
 	result, err = deleteJSON(t, fmt.Sprintf("/auth/group/%v/notes/%v", groupID, noteID), token1, 404)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
