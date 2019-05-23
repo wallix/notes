@@ -100,7 +100,8 @@ class NewNote extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  modals: state.modals.modals
+  modals: state.modals.modals,
+  group: state.selectedGroup
 });
 const mapDispatchToProps = {
   ...uiActions,

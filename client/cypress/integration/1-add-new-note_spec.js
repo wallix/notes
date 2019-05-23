@@ -5,8 +5,8 @@ const crypto = require("crypto"),
 
 shasum.update(new Date().getTime() + "");
 
-const seed = shasum.digest("hex").substring(0, 8);
-// const seed = `cooper`;
+let seed = shasum.digest("hex").substring(0, 8);
+// seed = `cooper`;
 
 const username = `alice.${seed}`;
 const password = `password1234=?`;
@@ -24,7 +24,7 @@ const encryptedContent = `Here is a new encrypted note -- ${formatedDate}`;
 const encryptedSharedContent = `Here is a new encrypted shared note -- ${formatedDate}`;
 
 describe(`Notes creation ${seed}`, function() {
-  it("Random Alice create an account", function() {
+  it("alice create an account", function() {
     cy.visit("/");
     cy.contains("Create an account").click();
     cy.get('.modal-body [name="username"]', { timeout: 5000 }).type(username);
@@ -34,45 +34,43 @@ describe(`Notes creation ${seed}`, function() {
     cy.get('[data-test="create"]').click();
   });
 
-  for (let name of ["alice" /*, "bob"*/]) {
-    for (let i = 0; i < 2; i++) {
-      it(`${name}.${i} create an account`, function() {
-        cy.visit("/");
+  for (let name of ["bob", "charlie"]) {
+    it(`${name} create an account`, function() {
+      cy.visit("/");
 
-        let login = `${name}.${i}.${seed}`;
+      let login = `${name}.${seed}`;
 
-        cy.contains("Create an account").click();
-        cy.get('.modal-body [name="username"]').type(login);
-        cy.get('[name="password1"]').type(password);
-        cy.get('[name="password2"]').type(password);
-        cy.get('[data-test="create"]').click();
+      cy.contains("Create an account").click();
+      cy.get('.modal-body [name="username"]').type(login);
+      cy.get('[name="password1"]').type(password);
+      cy.get('[name="password2"]').type(password);
+      cy.get('[data-test="create"]').click();
 
-        // login
-        cy.get('.panel-body [name="username"]').type(login);
-        cy.get('[name="password"]').type(password);
-        cy.get('[data-test="login-btn"]').click();
-        cy.get('[data-test="create"]').should("not.exist");
+      // login
+      cy.get('.panel-body [name="username"]').type(login);
+      cy.get('[name="password"]').type(password);
+      cy.get('[data-test="login-btn"]').click();
+      cy.get('[data-test="create"]').should("not.exist");
 
-        // cy.get("div.modal-content", { timeout: 30000 }).then(
-        //   modalNewPassword => {
-        //     if (modalNewPassword.find('[name="password1"]').length > 0) {
-        //       cy.get('[name="password1"]').type(password2);
-        //       cy.get('[name="password2"]').type(password2);
-        //       cy.get('[data-test="create"]').click();
-        //     }
-        //   }
-        // );
+      // cy.get("div.modal-content", { timeout: 30000 }).then(
+      //   modalNewPassword => {
+      //     if (modalNewPassword.find('[name="password1"]').length > 0) {
+      //       cy.get('[name="password1"]').type(password2);
+      //       cy.get('[name="password2"]').type(password2);
+      //       cy.get('[data-test="create"]').click();
+      //     }
+      //   }
+      // );
 
-        // Wait for the modal to close to be sure password has been updated
-        // cy.get('[data-test="create"]').should("not.exist");
+      // Wait for the modal to close to be sure password has been updated
+      // cy.get('[data-test="create"]').should("not.exist");
 
-        cy.visit("/");
-        cy.login(login, password);
-      });
-    }
+      cy.visit("/");
+      cy.login(login, password);
+    });
   }
 
-  it("Alice sign in an create new note", function() {
+  it("alice sign in an create new note", function() {
     cy.visit("/");
 
     cy.get('[name="username"]').type(username);
@@ -115,7 +113,7 @@ describe(`Notes creation ${seed}`, function() {
   //   }).should("exist");
   // });
 
-  it("Alice sign in and find her note", function() {
+  it("alice sign in and find her note", function() {
     cy.visit("/");
 
     cy.login(username, password);
@@ -152,7 +150,7 @@ describe(`Notes sharing ${seed}`, function() {
     cy.get('[name="title"]').type("New note encrypted and shared");
     cy.get('[name="content"]').type(encryptedSharedContent);
 
-    const shareWith = `alice.0.${seed}`;
+    const shareWith = `charlie.${seed}`;
 
     cy.shareWith(shareWith);
     cy.contains("Save").click();
@@ -161,15 +159,16 @@ describe(`Notes sharing ${seed}`, function() {
       "not.exist"
     );
 
+    // New note should appear and use .shared css class
     cy.contains("div.panel-body", encryptedSharedContent, {
       timeout: 20000
     }).should("exist");
   });
 
-  it(`alice.0.${seed} find her notes`, function() {
+  it(`charlie.${seed} find his notes`, function() {
     cy.visit("/");
 
-    cy.login(`alice.0.${seed}`, password);
+    cy.login(`charlie.${seed}`, password);
 
     // Test if precedent title exists
     cy.contains("div", "New note encrypted and shared", {
@@ -180,7 +179,7 @@ describe(`Notes sharing ${seed}`, function() {
     }).should("exist");
   });
 
-  it("Alice sign in and extends share with alice.1", function() {
+  it("alice sign in and extends share with bob", function() {
     cy.visit("/");
 
     cy.login(username, password);
@@ -191,8 +190,8 @@ describe(`Notes sharing ${seed}`, function() {
       .parent()
       .click();
 
-    // Search alice.1
-    const shareWith = `alice.1.${seed}`;
+    // Search bob
+    const shareWith = `bob.${seed}`;
 
     cy.shareWith(shareWith);
 
@@ -200,21 +199,20 @@ describe(`Notes sharing ${seed}`, function() {
     cy.contains("Save").should("not.exist");
 
     // Click on shared button
-    cy.get("span.shared", {
-      timeout: 30000
-    })
-      .eq(0)
-      .parent("button")
+    cy.contains("div.panel-body", encryptedSharedContent, { timeout: 20000 })
+      .parentsUntil("li")
+      .find(".shared")
+      .parent()
       .click();
 
-    cy.contains("alice.1").should("exist");
+    cy.contains("span", "bob", { timeout: 5000 }).should("exist");
     cy.contains("Cancel").click();
   });
 
-  it(`alice.1.${seed} find her notes`, function() {
+  it(`bob.${seed} find her notes`, function() {
     cy.visit("/");
 
-    cy.login(`alice.1.${seed}`, password);
+    cy.login(`bob.${seed}`, password);
 
     cy.contains("div.panel-body", encryptedSharedContent, {
       timeout: 10000
@@ -227,21 +225,21 @@ describe(`Sharing with groups ${seed}`, () => {
   const sharedNoteTitle = `Shared note with group ${group1name}`;
   const sharedNoteContent = `Note content shared with group ${group1name} -- ${formatedDate}`;
 
-  it(`Alice ${seed} create a group`, () => {
+  it(`alice ${seed} create a group`, () => {
     cy.visit("/");
     cy.login(username, password);
     cy.get('[data-test="new-group"]').click();
     cy.get(".modal-body").within(() => {
       cy.get("input:first").should("have.attr", "placeholder", "Name");
       cy.get("input:first").type(group1name);
-      cy.shareWith(`alice.0.${seed}`);
+      cy.shareWith(`charlie.${seed}`);
     });
 
     cy.get('[data-test="save"]').click();
     cy.contains(group1name).should("exist");
   });
 
-  it(`Alice ${seed} edit a group`, () => {
+  it(`alice ${seed} edit a group`, () => {
     cy.visit("/");
     cy.login(username, password);
     // Select the group

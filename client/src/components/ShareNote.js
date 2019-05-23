@@ -23,9 +23,8 @@ class ShareNote extends React.Component {
   }
 
   render() {
-    const { modals, payload, closeModal } = this.props;
+    const { modals, closeModal } = this.props;
     const { sharedWith } = this.state;
-    console.log("ShareNote", this.state, payload);
 
     return (
       <div>
@@ -90,7 +89,7 @@ class ShareNote extends React.Component {
       const {
         payload: { note }
       } = this.props;
-      notesService.shareNote(note, this.state.sharingList);
+      await notesService.shareNote(note, this.state.sharingList);
       this.props.closeModal(uiConstants.ShareNoteModal);
     } catch (e) {
       console.log(e);

@@ -47,7 +47,8 @@ async function loginNotes(username, password) {
 }
 
 export async function logout() {
-  await store.getState().auth.datapeps.logout();
+  store.getState().auth.datapeps &&
+    (await store.getState().auth.datapeps.logout());
 }
 
 export async function subscribe(username, password) {

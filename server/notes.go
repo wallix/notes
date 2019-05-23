@@ -40,11 +40,21 @@ func (e *Env) noteListHandler(c *gin.Context) {
 	var notes []Note
 
 	owner := getOwner(c)
-	err := e.db.Where("owner = ?", owner).Find(&notes).Error
+	err := e.db.Preload("SharedWith").Where("owner = ?", owner).Find(&notes).Error
+
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
 		return
 	}
+
+	// /!\ Quick workaround to hide password
+	// TODO : remove after db changes
+	for _, note := range notes {
+		for _, sharer := range note.SharedWith {
+			sharer.Password = ""
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"notes": notes})
 }
 

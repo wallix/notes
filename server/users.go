@@ -23,7 +23,7 @@ type Group struct {
 	gorm.Model
 	Name  string   `form:"name" json:"name" binding:"required"`
 	Users []*Login `json:"users" gorm:"many2many:group_users;"`
-	Notes []*Note `gorm:"many2many:note_groups;"`
+	Notes []*Note  `gorm:"many2many:note_groups;"`
 }
 
 func (e *Env) getUser(username string) (*Login, error) {
