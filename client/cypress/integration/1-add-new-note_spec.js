@@ -209,7 +209,7 @@ describe(`Notes sharing ${seed}`, function() {
     cy.contains("Cancel").click();
   });
 
-  it(`bob.${seed} find her notes`, function() {
+  it(`bob.${seed} find his notes`, function() {
     cy.visit("/");
 
     cy.login(`bob.${seed}`, password);
@@ -233,6 +233,7 @@ describe(`Sharing with groups ${seed}`, () => {
       cy.get("input:first").should("have.attr", "placeholder", "Name");
       cy.get("input:first").type(group1name);
       cy.shareWith(`charlie.${seed}`);
+      cy.shareWith(`bob.${seed}`);
     });
 
     cy.get('[data-test="save"]').click();
@@ -258,6 +259,47 @@ describe(`Sharing with groups ${seed}`, () => {
     cy.contains(".panel-body", sharedNoteContent, { timeout: 30000 }).should(
       "exist"
     );
+  });
+
+  it(`bob ${seed} access to the group`, () => {
+    cy.visit("/");
+    cy.login(`bob.${seed}`, password);
+    // Select the group
+    cy.contains(group1name).click();
+    // See the note
+    cy.contains(".panel-body", sharedNoteContent, { timeout: 30000 }).should(
+      "exist"
+    );
+  });
+
+  it(`alice ${seed} remove bob from the group`, () => {
+    cy.visit("/");
+    cy.login(username, password);
+    // Select the group
+    cy.contains(group1name)
+      .parent()
+      .within(() => {
+        cy.get('[data-test="edit-group"]').click();
+      });
+
+    cy.shareWith(`alice.${seed}`);
+    cy.shareWith(`charlie.${seed}`);
+    cy.contains("Save").click();
+    cy.contains(".modal-footer", "Save", { timeout: 5000 }).should("not.exist");
+    // Wait for the request to be executed
+    cy.wait(2000);
+  });
+
+  it(`bob ${seed} access to the group and stop seeing the note`, () => {
+    cy.visit("/");
+    cy.login(`bob.${seed}`, password);
+    // Select the group
+    cy.contains(group1name).click();
+
+    cy.wait(5000);
+
+    // Don't see the note
+    cy.get(".panel-body").should("not.contain", sharedNoteContent);
   });
 
   it(`Alice ${seed} delete the group's note`, () => {

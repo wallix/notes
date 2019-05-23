@@ -69,6 +69,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                     }}
                   >
                     <Glyphicon
+                      data-test="edit-group"
                       onClick={e => {
                         e.stopPropagation();
                         dispatch(

@@ -34,6 +34,7 @@ Cypress.Commands.add("login", (login, pw) => {
 Cypress.Commands.add("shareWith", shareWith => {
   cy.get("#ShareSelect > div > div:first-child").click();
   cy.get("#ShareSelect input").type(shareWith, { force: true });
+  cy.wait(500);
   cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").should(
     "contain",
     shareWith
