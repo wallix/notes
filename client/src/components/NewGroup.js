@@ -86,7 +86,6 @@ class NewGroup extends React.Component {
 function mapStateToProps(state) {
   return {
     modals: state.modals.modals,
-    datapeps: state.auth.datapeps,
     user: state.auth.user
   };
 }

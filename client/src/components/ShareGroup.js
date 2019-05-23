@@ -75,8 +75,7 @@ class ShareGroup extends React.Component {
 
 const mapStateToProps = state => ({
   modals: state.modals.modals,
-  payload: state.modals.payload,
-  datapeps: state.auth.datapeps
+  payload: state.modals.payload
 });
 const mapDispatchToProps = {
   ...uiActions
