@@ -14,8 +14,7 @@ type Note struct {
 	Title      string
 	Content    string
 	Owner      string
-	Tags       string
-	SharedWith []*Login `gorm:"many2many:note_shared;"`
+	SharedWith []*User  `gorm:"many2many:note_shared;"`
 	Groups     []*Group `gorm:"many2many:note_groups;"`
 }
 
@@ -113,7 +112,6 @@ func (e *Env) createOrUpdateNote(noteID string, note *Note) error {
 	e.db.Where("ID = ?", noteID).First(&previous)
 	previous.Title = note.Title
 	previous.Content = note.Content
-	previous.Tags = note.Tags
 	return e.db.Save(&previous).Error
 }
 

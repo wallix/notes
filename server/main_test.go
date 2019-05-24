@@ -46,7 +46,7 @@ func getJSON(t *testing.T, url string, token string, expectedStatus int) (map[st
 	}
 
 	err = json.NewDecoder(response.Body).Decode(&m)
-	return m, nil
+	return m, err
 }
 
 func deleteJSON(t *testing.T, url string, token string, expectedStatus int) (map[string]interface{}, error) {
@@ -356,6 +356,7 @@ func TestGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
+
 	compareGroups(t, group, result["group"].(map[string]interface{}))
 	// user1 get his groups
 	result, err = getJSON(t, "/auth/groups", token1, 200)

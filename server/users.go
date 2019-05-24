@@ -10,8 +10,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Login represents a user
-type Login struct {
+// User represents a user
+type User struct {
 	gorm.Model
 	Username    string   `form:"username" json:"username" binding:"required"`
 	Password    string   `form:"password" json:"password" binding:"required"`
@@ -22,25 +22,25 @@ type Login struct {
 // Group represents a group
 type Group struct {
 	gorm.Model
-	Name  string   `form:"name" json:"name" binding:"required"`
-	Users []*Login `json:"users" gorm:"many2many:group_users;"`
-	Notes []*Note  `gorm:"many2many:note_groups;"`
+	Name  string  `form:"name" json:"name" binding:"required"`
+	Users []*User `json:"users" gorm:"many2many:group_users;"`
+	Notes []*Note `gorm:"many2many:note_groups;"`
 }
 
-func (e *Env) getUser(username string) (*Login, error) {
-	var login Login
+func (e *Env) getUser(username string) (*User, error) {
+	var login User
 	err := e.db.Where("username = ?", username).First(&login).Error
 	return &login, err
 }
 
-func (e *Env) getUsers(username []string) ([]*Login, error) {
-	var logins []*Login
+func (e *Env) getUsers(username []string) ([]*User, error) {
+	var logins []*User
 	err := e.db.Where("username IN (?)", username).Find(&logins).Error
 	return logins, err
 }
 
-func (e *Env) changePassword(username string, json Login) error {
-	var login Login
+func (e *Env) changePassword(username string, json User) error {
+	var login User
 	if username != json.Username {
 		return (errors.New("username does not match"))
 	}
@@ -51,7 +51,7 @@ func (e *Env) changePassword(username string, json Login) error {
 
 // create a new account, or update the password of an existing account
 func (e *Env) subscribeHandler(c *gin.Context) {
-	var login Login
+	var login User
 	if err := c.ShouldBindJSON(&login); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
 		return
@@ -70,7 +70,7 @@ func (e *Env) subscribeHandler(c *gin.Context) {
 		return
 	}
 	// case: user is not logged in, create a new account
-	var query Login
+	var query User
 	err := e.db.First(&query, "username = ?", login.Username).Error
 	if err == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": "user exists"})
@@ -88,7 +88,7 @@ func (e *Env) userListHandler(c *gin.Context) {
 	var usernames []string
 	search := c.Query("search")
 
-	req := e.db.Model(&Login{}).
+	req := e.db.Model(&User{}).
 		Where("deleted_at IS NULL")
 
 	if len(search) > 0 {

@@ -25,17 +25,7 @@ const encryptedContent = `Here is a new encrypted note -- ${formatedDate}`;
 const encryptedSharedContent = `Here is a new encrypted shared note -- ${formatedDate}`;
 
 describe(`Notes creation ${seed}`, function() {
-  it("alice create an account", function() {
-    cy.visit("/");
-    cy.contains("Create an account").click();
-    cy.get('.modal-body [name="username"]', { timeout: 5000 }).type(username);
-    cy.get('[name="password1"]').type(password);
-    cy.get('[name="password2"]').type(password);
-
-    cy.get('[data-test="create"]').click();
-  });
-
-  for (let name of ["bob", "charlie"]) {
+  for (let name of ["alice", "bob", "charlie"]) {
     it(`${name} create an account`, function() {
       cy.visit("/");
 
@@ -52,19 +42,6 @@ describe(`Notes creation ${seed}`, function() {
       cy.get('[name="password"]').type(password);
       cy.get('[data-test="login-btn"]').click();
       cy.get('[data-test="create"]').should("not.exist");
-
-      // cy.get("div.modal-content", { timeout: 30000 }).then(
-      //   modalNewPassword => {
-      //     if (modalNewPassword.find('[name="password1"]').length > 0) {
-      //       cy.get('[name="password1"]').type(password2);
-      //       cy.get('[name="password2"]').type(password2);
-      //       cy.get('[data-test="create"]').click();
-      //     }
-      //   }
-      // );
-
-      // Wait for the modal to close to be sure password has been updated
-      // cy.get('[data-test="create"]').should("not.exist");
 
       cy.visit("/");
       cy.login(login, password);

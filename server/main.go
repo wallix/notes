@@ -21,13 +21,13 @@ func groupMembershipRequired(e *Env) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		groupID := c.Param("id")
 		owner := getOwner(c)
-		var login Login
+		var login User
 
 		// e.db.First(&group, "id = ?", groupID)
 		// e.db.First(&login, "username = ?", owner)
 		// err := e.db.Model(&group).Related(&login, "Users").Error
 		err := e.db.
-			Joins("JOIN group_users ON login_id = logins.id AND group_id = ?", groupID).
+			Joins("JOIN group_users ON user_id = users.id AND group_id = ?", groupID).
 			Where("username = ?", owner).
 			Find(&login).Error
 
@@ -122,7 +122,7 @@ func openEnv(name string) *Env {
 	}
 	// Migrate the schema
 	db.AutoMigrate(&Note{})
-	db.AutoMigrate(&Login{})
+	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Group{})
 	return &Env{db: db}
 }

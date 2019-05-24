@@ -8,7 +8,7 @@ import (
 var identityKey = "id"
 
 func makePayLoad(data interface{}) jwt.MapClaims {
-	if v, ok := data.(*Login); ok {
+	if v, ok := data.(*User); ok {
 		return jwt.MapClaims{
 			identityKey: v.Username,
 		}
@@ -18,24 +18,24 @@ func makePayLoad(data interface{}) jwt.MapClaims {
 
 func makeIdentityHandler(c *gin.Context) interface{} {
 	claims := jwt.ExtractClaims(c)
-	return &Login{
+	return &User{
 		Username: claims["id"].(string),
 	}
 }
 
 func (e *Env) makeAuthenticator(c *gin.Context) (interface{}, error) {
-	var login Login
+	var login User
 	if err := c.ShouldBind(&login); err != nil {
 		return "", jwt.ErrMissingLoginValues
 	}
 	userID := login.Username
 	password := login.Password
 
-	var query Login
+	var query User
 	e.db.First(&query, "username = ?", login.Username)
 
 	if password == query.Password {
-		return &Login{
+		return &User{
 			Username: userID,
 		}, nil
 	}
@@ -44,7 +44,7 @@ func (e *Env) makeAuthenticator(c *gin.Context) (interface{}, error) {
 }
 
 func makeAuthorizator(data interface{}, c *gin.Context) bool {
-	_, ok := data.(*Login)
+	_, ok := data.(*User)
 	return ok
 }
 
@@ -58,6 +58,6 @@ func makeUnauthorized(c *gin.Context, code int, message string) {
 // retrieves owner (username) from JWT token
 func getOwner(c *gin.Context) string {
 	user, _ := c.Get(identityKey)
-	owner := user.(*Login).Username
+	owner := user.(*User).Username
 	return owner
 }
