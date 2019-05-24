@@ -50,6 +50,7 @@ jobs:
         environment:
           ## this enables colors in the output
           TERM: xterm
+          CYPRESS_SEED: "$CIRCLE_SHA1"
     steps:
       - attach_workspace:
           at: ./

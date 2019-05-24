@@ -5,8 +5,9 @@ const crypto = require("crypto"),
 
 shasum.update(new Date().getTime() + "");
 
-let seed = shasum.digest("hex").substring(0, 8);
-// seed = `cooper`;
+let seed = shasum.digest("hex").substring(0, 7);
+// Change seed by using command : CYPRESS_SEED="blabla" cypress open
+seed = Cypress.env("SEED") || seed;
 
 const username = `alice.${seed}`;
 const password = `password1234=?`;
@@ -222,8 +223,12 @@ describe(`Notes sharing ${seed}`, function() {
 
 describe(`Sharing with groups ${seed}`, () => {
   const group1name = "Group test 1";
-  const sharedNoteTitle = `Shared note with group ${group1name}`;
-  const sharedNoteContent = `Note content shared with group ${group1name} -- ${formatedDate}`;
+
+  const notes = new Array(2).fill(1).map((x, idx) => ({
+    title: `Group note #${idx + 1}`,
+    content: `Note #${idx +
+      1} group ${group1name} containing text -- ${formatedDate}`
+  }));
 
   it(`alice ${seed} create a group`, () => {
     cy.visit("/");
@@ -232,8 +237,8 @@ describe(`Sharing with groups ${seed}`, () => {
     cy.get(".modal-body").within(() => {
       cy.get("input:first").should("have.attr", "placeholder", "Name");
       cy.get("input:first").type(group1name);
-      cy.shareWith(`charlie.${seed}`);
       cy.shareWith(`bob.${seed}`);
+      cy.shareWith(`charlie.${seed}`);
     });
 
     cy.get('[data-test="save"]').click();
@@ -245,20 +250,23 @@ describe(`Sharing with groups ${seed}`, () => {
     cy.login(username, password);
     // Select the group
     cy.contains(group1name).click();
-    // Create note
-    cy.contains("button", "New Note", {
-      timeout: 20000
-    }).click();
-    cy.get(".modal-body").within(() => {
-      cy.get("input").should("have.attr", "placeholder", "Title");
-      cy.get("input").type(sharedNoteTitle);
-      cy.get("textarea").should("have.attr", "placeholder", "Content");
-      cy.get("textarea").type(sharedNoteContent);
-    });
-    cy.contains("Save").click();
-    cy.contains(".panel-body", sharedNoteContent, { timeout: 30000 }).should(
-      "exist"
-    );
+    // Create notes
+
+    for (let note of notes) {
+      cy.contains("button", "New Note", {
+        timeout: 20000
+      }).click();
+      cy.get(".modal-body").within(() => {
+        cy.get("input").should("have.attr", "placeholder", "Title");
+        cy.get("input").type(note.title);
+        cy.get("textarea").should("have.attr", "placeholder", "Content");
+        cy.get("textarea").type(note.content);
+      });
+      cy.contains("Save").click();
+      cy.contains(".panel-body", note.content, { timeout: 30000 }).should(
+        "exist"
+      );
+    }
   });
 
   it(`bob ${seed} access to the group`, () => {
@@ -267,12 +275,23 @@ describe(`Sharing with groups ${seed}`, () => {
     // Select the group
     cy.contains(group1name).click();
     // See the note
-    cy.contains(".panel-body", sharedNoteContent, { timeout: 30000 }).should(
+    cy.contains(".panel-body", notes[0].content, { timeout: 30000 }).should(
       "exist"
     );
   });
 
-  it(`alice ${seed} remove bob from the group`, () => {
+  it(`charlie ${seed} access to the group`, () => {
+    cy.visit("/");
+    cy.login(`charlie.${seed}`, password);
+    // Select the group
+    cy.contains(group1name).click();
+    // See the note
+    cy.contains(".panel-body", notes[0].content, { timeout: 30000 }).should(
+      "exist"
+    );
+  });
+
+  it(`alice ${seed} remove charlie from the group`, () => {
     cy.visit("/");
     cy.login(username, password);
     // Select the group
@@ -283,14 +302,48 @@ describe(`Sharing with groups ${seed}`, () => {
       });
 
     cy.shareWith(`alice.${seed}`);
-    cy.shareWith(`charlie.${seed}`);
+    cy.shareWith(`bob.${seed}`);
     cy.contains("Save").click();
     cy.contains(".modal-footer", "Save", { timeout: 5000 }).should("not.exist");
     // Wait for the request to be executed
     cy.wait(2000);
   });
 
-  it(`bob ${seed} access to the group and stop seeing the note`, () => {
+  it(`charlie ${seed} stop seeing the note`, () => {
+    cy.visit("/");
+    cy.login(`charlie.${seed}`, password);
+    // Select the group
+    cy.contains(group1name).click();
+    cy.wait(5000);
+    // Don't see the note
+    cy.get(".panel-body").should("not.contain", notes[0].content);
+  });
+
+  it(`Alice ${seed} delete the second group's note`, () => {
+    cy.visit("/");
+    cy.login(username, password);
+    // Select the group
+    cy.contains(group1name).click();
+
+    cy.contains(".panel-body", notes[1].content, { timeout: 30000 }).should(
+      "exist"
+    );
+    cy.contains(notes[1].content)
+      .parent(".panel")
+      .within(() => {
+        cy.get("button").click();
+      });
+    // Note should display in red and hide delete button
+    cy.contains(notes[1].content)
+      .parent(".panel")
+      .within(() => {
+        cy.get("button").should("not.exist");
+      });
+    // Force refresh, note should disapear
+    cy.get('[data-test="refresh"]').click();
+    cy.contains(notes[1].content).should("not.exist");
+  });
+  it(`charlie ${seed} stop seeing the second note`, () => {
     cy.visit("/");
     cy.login(`bob.${seed}`, password);
     // Select the group
@@ -299,31 +352,6 @@ describe(`Sharing with groups ${seed}`, () => {
     cy.wait(5000);
 
     // Don't see the note
-    cy.get(".panel-body").should("not.contain", sharedNoteContent);
-  });
-
-  it(`Alice ${seed} delete the group's note`, () => {
-    cy.visit("/");
-    cy.login(username, password);
-    // Select the group
-    cy.contains(group1name).click();
-
-    cy.contains(".panel-body", sharedNoteContent, { timeout: 30000 }).should(
-      "exist"
-    );
-    cy.contains(sharedNoteContent)
-      .parent(".panel")
-      .within(() => {
-        cy.get("button").click();
-      });
-    // Note should display in red and hide delete button
-    cy.contains(sharedNoteContent)
-      .parent(".panel")
-      .within(() => {
-        cy.get("button").should("not.exist");
-      });
-    // Force refresh, note should disapear
-    cy.get('[data-test="refresh"]').click();
-    cy.contains(sharedNoteContent).should("not.exist");
+    cy.get(".panel-body").should("not.contain", notes[1].content);
   });
 });
