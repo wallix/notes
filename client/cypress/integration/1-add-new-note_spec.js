@@ -129,6 +129,15 @@ describe(`Notes creation ${seed}`, function() {
 });
 
 describe(`Notes sharing ${seed}`, function() {
+  it("Login error should disapear", () => {
+    cy.visit("/");
+    cy.login("toto", "atat", false);
+    cy.login(`alice.${seed}`, password);
+    cy.contains("div.alert", "incorrect Username or Password").should(
+      "not.exist"
+    );
+  });
+
   it(`alice.${seed} share a new note, extends share`, function() {
     cy.visit("/");
 
