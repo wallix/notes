@@ -41,21 +41,21 @@ function deleteNote(id) {
   }
 }
 
-function postNote(note, sharedWith, groupID) {
+function postNote(note, users, groupID) {
   return async dispatch => {
-    dispatch(request(sharedWith, groupID));
+    dispatch(request(users, groupID));
 
     try {
-      const response = await notesService.postNote(note, groupID, sharedWith);
+      const response = await notesService.postNote(note, groupID, users);
       note.ID = response.noteID;
-      await notesService.shareNote(note, sharedWith);
+      await notesService.shareNote(note, users);
       dispatch(success(note));
     } catch (error) {
       dispatch(failure(error));
     }
   };
-  function request(id, sharedWith) {
-    return { type: notesConstants.POST_REQUEST, id, sharedWith };
+  function request(id, users) {
+    return { type: notesConstants.POST_REQUEST, id, users };
   }
   function success(note) {
     return { type: notesConstants.POST_SUCCESS, note };

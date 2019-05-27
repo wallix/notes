@@ -24,7 +24,7 @@ class ShareNote extends React.Component {
 
   render() {
     const { modals, closeModal } = this.props;
-    const { sharedWith } = this.state;
+    const { users } = this.state;
 
     return (
       <div>
@@ -38,9 +38,9 @@ class ShareNote extends React.Component {
           <Modal.Body>
             <p>Shared with:</p>
             <div className="panel">
-              {sharedWith == null
+              {users == null
                 ? null
-                : sharedWith.map(login => (
+                : users.map(login => (
                     <span key={login} className="label label-success">
                       {login}
                     </span>
@@ -80,8 +80,8 @@ class ShareNote extends React.Component {
     if (note == null) {
       return;
     }
-    let sharedWith = await notesService.getSharedWith(note);
-    this.setState({ sharedWith });
+    let users = await notesService.getUsers(note);
+    this.setState({ users });
   }
 
   async onShareNote() {

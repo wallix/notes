@@ -11,11 +11,11 @@ import (
 // Note represents a note
 type Note struct {
 	gorm.Model
-	Title      string
-	Content    string
-	Owner      string
-	SharedWith []*User  `gorm:"many2many:note_shared;"`
-	Groups     []*Group `gorm:"many2many:note_groups;"`
+	Title   string
+	Content string
+	Owner   string
+	Users   []*User  `gorm:"many2many:note_shared;"`
+	Groups  []*Group `gorm:"many2many:note_groups;"`
 }
 
 func (e *Env) getSharedNotes(c *gin.Context) {
@@ -39,7 +39,7 @@ func (e *Env) noteListHandler(c *gin.Context) {
 	var notes []Note
 
 	owner := getOwner(c)
-	err := e.db.Preload("SharedWith").Where("owner = ?", owner).Find(&notes).Error
+	err := e.db.Preload("Users").Where("owner = ?", owner).Find(&notes).Error
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
@@ -49,7 +49,7 @@ func (e *Env) noteListHandler(c *gin.Context) {
 	// /!\ Quick workaround to hide password
 	// TODO : remove after db changes
 	for _, note := range notes {
-		for _, sharer := range note.SharedWith {
+		for _, sharer := range note.Users {
 			sharer.Password = ""
 		}
 	}
@@ -87,7 +87,7 @@ func (e *Env) noteShareHandler(c *gin.Context) {
 		return
 	}
 	// append user
-	err = e.db.Model(&note).Association("SharedWith").Append(login).Error
+	err = e.db.Model(&note).Association("Users").Append(login).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return

@@ -208,7 +208,7 @@ describe(`Notes sharing ${seed}`, function() {
 });
 
 describe(`Sharing with groups ${seed}`, () => {
-  const group1name = "Group test 1";
+  const group1name = `Group test -- 🎲 ${Math.floor(Math.random() * 100)}`;
 
   const notes = new Array(2).fill(1).map((x, idx) => ({
     title: `Group note #${idx + 1}`,

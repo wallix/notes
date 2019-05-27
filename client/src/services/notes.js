@@ -3,8 +3,8 @@ import { ResourceAPI, ID, getLogin } from "datapeps-sdk";
 import { handleResponse, authHeader, groupLogin } from "./utils";
 import store from "../store";
 
-export async function postNote(note, groupID, sharedWith) {
-  note = await encryptNote(note, groupID, sharedWith);
+export async function postNote(note, groupID, users) {
+  note = await encryptNote(note, groupID, users);
   const requestOptions = {
     method: "POST",
     headers: authHeader(true),
@@ -46,7 +46,7 @@ export async function getSharedNotes() {
   return handleNotesResponse(response);
 }
 
-export async function getSharedWith(note) {
+export async function getUsers(note) {
   const {
     auth: { datapeps },
     selectedGroup: group
@@ -124,12 +124,12 @@ async function handleNotesResponse(response, groupID) {
   return { notes: await Promise.all(notes.map(decryptNote)) };
 }
 
-async function encryptNote(note, groupID, sharedWith) {
+async function encryptNote(note, groupID, users) {
   let datapeps = store.getState().auth.datapeps;
   let sharingGroup = groupID == null ? [datapeps.login] : [groupLogin(groupID)];
-  if (sharedWith != null) {
+  if (users != null) {
     sharingGroup = sharingGroup.concat(
-      sharedWith.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
+      users.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
     );
   }
   const resource = await new ResourceAPI(datapeps).create(
