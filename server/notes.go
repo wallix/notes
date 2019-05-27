@@ -26,7 +26,7 @@ func (e *Env) noteListHandler(c *gin.Context) {
 		return
 	}
 
-	err = e.db.Model(&user).Related(&notes, "Notes").Error
+	err = e.db.Preload("Users").Model(&user).Related(&notes, "Notes").Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return

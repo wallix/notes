@@ -125,8 +125,13 @@ func TestCreateUserAndLogInPostAndGetNotes(t *testing.T) {
 		"title":   "this is title",
 		"content": "this is content",
 	}
+	// login before subscribe
+	result, err := postJSON(t, "/login", user, nil, http.StatusUnauthorized)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
 	// subscribe
-	result, err := postJSON(t, "/subscribe", user, nil, 200)
+	result, err = postJSON(t, "/subscribe", user, nil, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}

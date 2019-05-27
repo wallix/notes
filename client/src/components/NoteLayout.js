@@ -23,7 +23,7 @@ export const NoteLayout = ({
         {group != null ? null : (
           <Button onClick={openShareModal} data-test="share">
             <Glyphicon
-              className={Users && Users.length > 0 ? "shared" : "notshared"}
+              className={Users && Users.length > 1 ? "shared" : "notshared"}
               glyph="share"
             />
           </Button>

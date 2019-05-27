@@ -120,14 +120,12 @@ func openEnv(name string) *Env {
 		panic("failed to connect database")
 	}
 	// Migrate the schema
-	db.AutoMigrate(&Note{})
-	db.AutoMigrate(&User{})
-	db.AutoMigrate(&Group{})
+	db.AutoMigrate(&Note{}, &Auth{}, &User{}, &Group{})
 	return &Env{db: db}
 }
 
 func main() {
-	env := openEnv("./notes-db/notesD.db")
+	env := openEnv("./notes-db/notesE.db")
 	defer env.db.Close()
 	env.httpEngine().Run()
 }

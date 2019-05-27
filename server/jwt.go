@@ -24,23 +24,20 @@ func makeIdentityHandler(c *gin.Context) interface{} {
 }
 
 func (e *Env) makeAuthenticator(c *gin.Context) (interface{}, error) {
-	var login User
-	if err := c.ShouldBind(&login); err != nil {
+	var request AuthObject
+	if err := c.ShouldBind(&request); err != nil {
 		return "", jwt.ErrMissingLoginValues
 	}
-	userID := login.Username
-	password := login.Password
-
-	var query User
-	e.db.First(&query, "username = ?", login.Username)
-
-	if password == query.Password {
-		return &User{
-			Username: userID,
-		}, nil
+	var user User
+	err := e.db.Table("users").
+		Joins("JOIN auths ON users.id = user_id").
+		Where("username = ? and password = ?", request.Username, request.Password).First(&user).Error
+	if err != nil {
+		return nil, jwt.ErrFailedAuthentication
 	}
-
-	return nil, jwt.ErrFailedAuthentication
+	return &User{
+		Username: request.Username,
+	}, nil
 }
 
 func makeAuthorizator(data interface{}, c *gin.Context) bool {

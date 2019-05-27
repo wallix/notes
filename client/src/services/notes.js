@@ -33,19 +33,6 @@ export async function getNotes() {
   return handleNotesResponse(response);
 }
 
-export async function getSharedNotes() {
-  const requestOptions = {
-    method: "GET",
-    headers: authHeader(false)
-  };
-
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/share/notes`,
-    requestOptions
-  );
-  return handleNotesResponse(response);
-}
-
 export async function getUsers(note) {
   const {
     auth: { datapeps },

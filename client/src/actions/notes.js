@@ -87,21 +87,9 @@ function getNotes(group) {
 
   function getUserNotes(dispatch) {
     notesService.getNotes().then(
-      notes =>
-        notesService.getSharedNotes().then(
-          shared => {
-            dispatch(
-              success({
-                notes: notes.notes.concat(shared.notes),
-                source: "both"
-              })
-            );
-          },
-          error => {
-            dispatch(success({ ...notes, source: "owner" }));
-            dispatch(failure(error));
-          }
-        ),
+      notes => {
+        dispatch(success({ ...notes, source: "owner" }));
+      },
       error => dispatch(failure(error))
     );
   }

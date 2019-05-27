@@ -10,13 +10,25 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type AuthObject struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 // User represents a user
 type User struct {
 	gorm.Model
-	Username    string   `form:"username" json:"username" binding:"required"`
-	Password    string   `form:"password" json:"password" binding:"required"`
-	SharedNotes []*Note  `json:"-" gorm:"many2many:note_shared;"`
-	Groups      []*Group `json:"-" gorm:"many2many:group_users;"`
+	Username string   `form:"username" json:"username" binding:"required"`
+	Notes    []*Note  `json:"-" gorm:"many2many:note_shared;"`
+	Groups   []*Group `json:"-" gorm:"many2many:group_users;"`
+}
+
+// Auth contains password
+type Auth struct {
+	gorm.Model
+	UserID   int
+	User     User `gorm:"foreignkey:UserID"`
+	Password string
 }
 
 // Group represents a group
@@ -39,8 +51,8 @@ func (e *Env) getUsers(username []string) ([]*User, error) {
 	return logins, err
 }
 
-func (e *Env) changePassword(username string, json User) error {
-	var login User
+func (e *Env) changePassword(username string, json AuthObject) error {
+	var login Auth
 	if username != json.Username {
 		return (errors.New("username does not match"))
 	}
@@ -51,7 +63,7 @@ func (e *Env) changePassword(username string, json User) error {
 
 // create a new account, or update the password of an existing account
 func (e *Env) subscribeHandler(c *gin.Context) {
-	var login User
+	var login AuthObject
 	if err := c.ShouldBindJSON(&login); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
 		return
@@ -70,18 +82,21 @@ func (e *Env) subscribeHandler(c *gin.Context) {
 		return
 	}
 	// case: user is not logged in, create a new account
-	var query User
-	err := e.db.First(&query, "username = ?", login.Username).Error
+	var user User
+	err := e.db.Table("users").
+		Where("username = ? and password = ?", login.Username, login.Password).
+		Joins("JOIN auths ON users.id = user_id").First(&user).Error
 	if err == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": "user exists"})
 		return
 	}
-	err = e.db.Save(&login).Error
+	var query = Auth{Password: login.Password, User: User{Username: login.Username}}
+	err = e.db.Save(&query).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "user created", "userID": login.ID})
+	c.JSON(http.StatusOK, gin.H{"status": "user created", "userID": query.ID})
 }
 
 func (e *Env) userListHandler(c *gin.Context) {
