@@ -139,7 +139,6 @@ func TestCreateUserAndLogInPostAndGetNotes(t *testing.T) {
 		t.Fatalf("Non-expected error: %v", err)
 	}
 	token := result["token"].(string)
-	t.Log(token)
 	// post note (twice)
 	result, err = postJSON(t, "/auth/notes", note, &token, 200)
 	if err != nil {
@@ -153,6 +152,9 @@ func TestCreateUserAndLogInPostAndGetNotes(t *testing.T) {
 	result, err = getJSON(t, "/auth/notes", token, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
+	}
+	if errMsg, exists := result["err"]; exists {
+		t.Fatalf("Unexpected error %+v %+v %+v", err, errMsg, result)
 	}
 	notes := result["notes"].([]interface{})
 	if len(notes) != 2 {
@@ -253,6 +255,10 @@ func TestNoteSharing(t *testing.T) {
 		"title":   "title will be shared",
 		"content": "content will be shared",
 	}
+	note2 := map[string]interface{}{
+		"title":   "title will not be shared",
+		"content": "content will not be shared",
+	}
 	// create 2 users
 	_, err = postJSON(t, "/subscribe", user1, nil, 200)
 	if err != nil {
@@ -275,26 +281,60 @@ func TestNoteSharing(t *testing.T) {
 		t.Fatalf("Non-expected error: %v", err)
 	}
 	noteID := int(result["noteID"].(float64))
+
+	// user2 logs in
+	result, err = postJSON(t, "/login", user2, nil, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	token2 := result["token"].(string)
+	// get notes and check length
+	result, err = getJSON(t, "/auth/notes", token2, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	notes := result["notes"].([]interface{})
+	if len(notes) != 0 {
+		t.Fatalf("Wrong number of notes: %v in %+v", len(notes), notes)
+	}
+
+	// user2 creates note and get ID
+	result, err = postJSON(t, "/auth/notes", note2, &token2, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	noteIDuser2 := int(result["noteID"].(float64))
+
+	// user1 get user2's note and fail
+	result, err = getJSON(t, fmt.Sprintf("/auth/notes/%v", noteIDuser2), token, http.StatusForbidden)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	// notes = result["notes"].([]interface{})
+	// if len(notes) != 2 {
+	// 	t.Fatalf("Wrong number of notes: %v in %+v", len(notes), notes)
+	// }
+
 	// user1 shares note with user2
 	empty := map[string]interface{}{}
 	result, err = postJSON(t, fmt.Sprintf("/auth/share/%v/%v", noteID, user2["username"]), empty, &token, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
-	// user2 logs in
-	result, err = postJSON(t, "/login", user2, nil, 200)
+	// user1 shares note2 with user2 and fail
+	result, err = postJSON(t, fmt.Sprintf("/auth/share/%v/%v", noteIDuser2, user2["username"]), empty, &token, http.StatusForbidden)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
-	token = result["token"].(string)
-	// user2 retrieves shared notes
-	result, err = getJSON(t, "/auth/share/notes", token, 200)
+
+	// user2 get notes and check length
+	result, err = getJSON(t, "/auth/notes", token2, 200)
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
-	notes := result["notes"].([]interface{})
-	if len(notes) != 1 {
-		t.Fatalf("Wrong number of notes: %v", len(notes))
+	notes = result["notes"].([]interface{})
+	if len(notes) != 2 {
+		t.Fatalf("Wrong number of notes: %v in %+v", len(notes), notes)
 	}
 }
 

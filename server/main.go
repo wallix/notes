@@ -103,7 +103,6 @@ func (e *Env) httpEngine() *gin.Engine {
 		}
 
 		auth.POST("/share/:id/:with", e.noteShareHandler)
-		auth.GET("/share/notes", e.getSharedNotes)
 	}
 
 	r.GET("/ping", func(c *gin.Context) {
