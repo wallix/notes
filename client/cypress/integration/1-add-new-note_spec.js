@@ -48,6 +48,15 @@ describe(`Notes creation ${seed}`, function() {
     });
   }
 
+  it("Login error should disapear", () => {
+    cy.visit("/");
+    cy.login("toto", "atat", false);
+    cy.login(`alice.${seed}`, password);
+    cy.contains("div.alert", "incorrect Username or Password").should(
+      "not.exist"
+    );
+  });
+
   it("alice sign in an create new note", function() {
     cy.visit("/");
 
@@ -106,15 +115,6 @@ describe(`Notes creation ${seed}`, function() {
 });
 
 describe(`Notes sharing ${seed}`, function() {
-  it("Login error should disapear", () => {
-    cy.visit("/");
-    cy.login("toto", "atat", false);
-    cy.login(`alice.${seed}`, password);
-    cy.contains("div.alert", "incorrect Username or Password").should(
-      "not.exist"
-    );
-  });
-
   it(`alice.${seed} share a new note, extends share`, function() {
     cy.visit("/");
 
@@ -184,6 +184,11 @@ describe(`Notes sharing ${seed}`, function() {
 
     cy.contains("Save").click();
     cy.contains("Save").should("not.exist");
+
+    // Force refresh, status of note should change.
+    // TODO : remove the need to refresh
+    cy.get('[data-test="refresh"]').click();
+    cy.wait(2000);
 
     // Click on shared button
     cy.contains("div.panel-body", encryptedSharedContent, { timeout: 20000 })
@@ -287,12 +292,27 @@ describe(`Sharing with groups ${seed}`, () => {
         cy.get('[data-test="edit-group"]').click();
       });
 
-    cy.shareWith(`alice.${seed}`);
-    cy.shareWith(`bob.${seed}`);
+    cy.contains(`charlie.${seed}`)
+      .parent()
+      .within(() => {
+        cy.get("svg").click();
+      });
+
+    // cy.shareWith(`alice.${seed}`);
+    // cy.shareWith(`bob.${seed}`);
     cy.contains("Save").click();
     cy.contains(".modal-footer", "Save", { timeout: 5000 }).should("not.exist");
     // Wait for the request to be executed
     cy.wait(2000);
+
+    // Select the group
+    // Note buggy on purpose for this point. Charlie is removed from the group only on Datapeps
+    // cy.contains(group1name)
+    //   .parent()
+    //   .within(() => {
+    //     cy.get('[data-test="edit-group"]').click();
+    //   });
+    // cy.contains(`charlie.${seed}`).should("not.exist");
   });
 
   it(`charlie ${seed} stop seeing the note`, () => {

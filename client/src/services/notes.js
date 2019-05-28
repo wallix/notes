@@ -105,9 +105,8 @@ export async function shareNote(note, sharingList) {
   });
 }
 
-async function handleNotesResponse(response, groupID) {
+async function handleNotesResponse(response) {
   const { notes } = await handleResponse(response);
-  console.log("handleNotesResponse", notes);
   return { notes: await Promise.all(notes.map(decryptNote)) };
 }
 

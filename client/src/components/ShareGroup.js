@@ -31,6 +31,10 @@ class ShareGroup extends React.Component {
     if (group == null) {
       return null;
     }
+    let currentSharer = [];
+    if (group.users) {
+      currentSharer = [...group.users.map(u => u.username)];
+    }
     return (
       <div>
         <Modal
@@ -42,7 +46,13 @@ class ShareGroup extends React.Component {
           </Modal.Header>
           <Modal.Body>
             <Form onSubmit={this.onShareGroup}>
-              <ShareSelect onChange={this.changeSharingGroup} />
+              <ShareSelect
+                defaultValue={currentSharer.map(user => ({
+                  label: user,
+                  value: user
+                }))}
+                onChange={this.changeSharingGroup}
+              />
             </Form>
           </Modal.Body>
           <Modal.Footer>

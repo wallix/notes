@@ -208,7 +208,7 @@ func (e *Env) groupEditHandler(c *gin.Context) {
 
 func (e *Env) groupListHandler(c *gin.Context) {
 	owner, err := e.getUser(getOwner(c))
-	err = e.db.Model(&owner).Related(&owner.Groups, "Groups").Error
+	err = e.db.Preload("Users").Model(&owner).Related(&owner.Groups, "Groups").Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return

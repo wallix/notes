@@ -65,7 +65,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                   <span
                     style={{ float: "right" }}
                     onClick={() => {
-                      this.props.dispatch(usersActions.refresh());
+                      dispatch(usersActions.refresh());
                     }}
                   >
                     <Glyphicon
