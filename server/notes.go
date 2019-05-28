@@ -194,18 +194,22 @@ func (e *Env) createGroupNote(note *Note, groupID string) error {
 func (e *Env) noteDelete(c *gin.Context) {
 	var note Note
 	// get owner and note id
-	owner := getOwner(c)
 	noteID := c.Param("id")
-	// retrieve the note
-	err := e.db.Where("owner = ? AND ID = ?", owner, noteID).First(&note).Error
+	user, err := e.getUser(getOwner(c))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
 		return
 	}
-	// delete the note. TODO : remove users from sharer
-	err = e.db.Delete(&note).Error
+	// must be in the group user to delete
+	err = e.db.Model(&user).Where("notes.id = ?", noteID).Related(&note, "Notes").Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
+		c.JSON(http.StatusForbidden, gin.H{"err": err})
+		return
+	}
+	// delete the user association with the note
+	err = e.db.Model(&user).Association("Notes").Delete(&note).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{})

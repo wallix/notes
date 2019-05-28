@@ -10,7 +10,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type AuthObject struct {
+// Credentials is the json object for credentials
+type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -51,7 +52,7 @@ func (e *Env) getUsers(username []string) ([]*User, error) {
 	return logins, err
 }
 
-func (e *Env) changePassword(username string, json AuthObject) error {
+func (e *Env) changePassword(username string, json Credentials) error {
 	var login Auth
 	if username != json.Username {
 		return (errors.New("username does not match"))
@@ -63,7 +64,7 @@ func (e *Env) changePassword(username string, json AuthObject) error {
 
 // create a new account, or update the password of an existing account
 func (e *Env) subscribeHandler(c *gin.Context) {
-	var login AuthObject
+	var login Credentials
 	if err := c.ShouldBindJSON(&login); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
 		return

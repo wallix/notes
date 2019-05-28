@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -168,6 +169,62 @@ func TestCreateUserAndLogInPostAndGetNotes(t *testing.T) {
 	note0 := notes[0].(map[string]interface{})
 	if note0["Title"].(string) != "this is title" {
 		t.Fatalf("First note has wrong title: %v", note0["Title"].(string))
+	}
+}
+
+func TestNoteDelete(t *testing.T) {
+	// users := []Credentials{Credentials{"alice-delete", "haha"}, Credentials{"bob-delete", "hoho"}}
+	users := []map[string]interface{}{
+		map[string]interface{}{
+			"username": "alice-delete",
+			"password": "haha",
+		},
+		map[string]interface{}{
+			"username": "bob-delete",
+			"password": "hoho",
+		},
+	}
+
+	tokens := make([]string, 2)
+	noteIds := make([]float64, 2)
+
+	for idx, user := range users {
+		// subscribe
+		result, err := postJSON(t, "/subscribe", user, nil, 200)
+		if err != nil {
+			t.Fatalf("Non-expected error: %v", err)
+		}
+		if result["status"] != "user created" {
+			t.Fatalf("Non-expected response: %v", result)
+		}
+		// login
+		result, err = postJSON(t, "/login", user, nil, 200)
+		if err != nil {
+			t.Fatalf("Non-expected error: %v", err)
+		}
+		tokens[idx] = result["token"].(string)
+		// post note
+		note := map[string]interface{}{
+			"title":   fmt.Sprintf("Note of %s", user["username"]),
+			"content": "this is content",
+		}
+		result, err = postJSON(t, "/auth/notes", note, &tokens[idx], 200)
+		if err != nil {
+			t.Fatalf("Non-expected error: %v", err)
+		}
+		log.Printf("Result : %+v", result)
+		noteIds[idx] = result["noteID"].(float64)
+	}
+
+	// User 1 delete note of user 2
+	_, err := deleteJSON(t, fmt.Sprintf("/auth/notes/%v", noteIds[1]), tokens[0], http.StatusForbidden)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	// User 1 delete note of user 1
+	_, err = deleteJSON(t, fmt.Sprintf("/auth/notes/%v", noteIds[0]), tokens[0], http.StatusOK)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
 	}
 }
 
@@ -401,7 +458,6 @@ func TestGroup(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Non-expected error: %v", err)
 	}
-
 	compareGroups(t, group, result["group"].(map[string]interface{}))
 	// user1 get his groups
 	result, err = getJSON(t, "/auth/groups", token1, 200)

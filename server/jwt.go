@@ -24,7 +24,7 @@ func makeIdentityHandler(c *gin.Context) interface{} {
 }
 
 func (e *Env) makeAuthenticator(c *gin.Context) (interface{}, error) {
-	var request AuthObject
+	var request Credentials
 	if err := c.ShouldBind(&request); err != nil {
 		return "", jwt.ErrMissingLoginValues
 	}
