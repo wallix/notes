@@ -149,6 +149,6 @@ async function decryptNote(note) {
     const Content = resource.decrypt(note.Content);
     return { ...note, Title, Content, resourceID: id };
   } catch (e) {
-    return { ...note, Content: e.message };
+    return { ...note, Error: e.message };
   }
 }

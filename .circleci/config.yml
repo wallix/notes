@@ -57,7 +57,7 @@ jobs:
           command: |
             ( cd server ; ./server & )
             ( cd client ; npm i serve ; node_modules/.bin/serve -s build -l 3000 & )
-            cd client && node_modules/.bin/cypress install && CYPRESS_SEED="$CIRCLE_SHA1" node_modules/.bin/cypress run
+            cd client && node_modules/.bin/cypress install && node_modules/.bin/cypress run
       - store_artifacts:
           path: client/cypress/videos
       - store_artifacts:

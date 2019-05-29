@@ -1,5 +1,5 @@
 import React from "react";
-import { Panel, Button, ButtonGroup, Glyphicon } from "react-bootstrap";
+import { Alert, Panel, Button, ButtonGroup, Glyphicon } from "react-bootstrap";
 import "./NoteLayout.css";
 
 export const NoteLayout = ({
@@ -8,6 +8,7 @@ export const NoteLayout = ({
   deleteNote,
   Title,
   Content,
+  Error,
   style,
   Users,
   openShareModal,
@@ -17,7 +18,10 @@ export const NoteLayout = ({
     <Panel.Heading>
       <Panel.Title componentClass="h3">{Title}</Panel.Title>
     </Panel.Heading>
-    <Panel.Body>{Content}</Panel.Body>
+    <Panel.Body>
+      {Content}
+      {Error && <Alert bsStyle="danger">{Error}</Alert>}
+    </Panel.Body>
     <Panel.Footer className="text-right">
       <ButtonGroup>
         {group != null ? null : (
