@@ -87,6 +87,7 @@ class LoginPage extends React.Component {
                     type="text"
                     className="form-control"
                     name="username"
+                    autoComplete="username"
                     value={username}
                     onChange={this.handleChange}
                   />
@@ -104,6 +105,7 @@ class LoginPage extends React.Component {
                     type="password"
                     className="form-control"
                     name="password"
+                    autoComplete="current-password"
                     value={password}
                     onChange={this.handleChange}
                   />

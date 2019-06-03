@@ -48,13 +48,14 @@ describe(`Notes creation ${seed}`, function() {
     });
   }
 
-  it("Login error should disapear", () => {
+  it("Login error should appear and disapear", () => {
+    const errorMsg = "incorrect Username or Password";
     cy.visit("/");
     cy.login("toto", "atat", false);
+    cy.contains(errorMsg).should("exist");
+    cy.get(".alert").click();
     cy.login(`alice.${seed}`, password);
-    cy.contains("div.alert", "incorrect Username or Password").should(
-      "not.exist"
-    );
+    cy.contains("div.alert", errorMsg).should("not.exist");
   });
 
   it("alice sign in an create new note", function() {
