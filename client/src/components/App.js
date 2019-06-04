@@ -21,6 +21,8 @@ class App extends React.Component {
   }
 
   render() {
+    console.log("I'm in app");
+    console.log("public url: ", process.env.PUBLIC_URL);
     const { alert } = this.props;
     return (
       <div>
@@ -30,7 +32,11 @@ class App extends React.Component {
         <Router history={history}>
           <div>
             <div>
-              <PrivateRoute exact path="/" component={MainPage} />
+              <PrivateRoute
+                exact
+                path={`${process.env.PUBLIC_URL}/`}
+                component={MainPage}
+              />
             </div>
             <footer className="footer">
               <div

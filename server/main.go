@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -117,7 +118,7 @@ func (e *Env) httpEngine() *gin.Engine {
 func openEnv(name string) *Env {
 	db, err := gorm.Open("sqlite3", name)
 	if err != nil {
-		panic("failed to connect database")
+		panic(fmt.Sprintf("failed to connect database : %+v", err))
 	}
 	// Migrate the schema
 	db.AutoMigrate(&Note{}, &Auth{}, &User{}, &Group{})

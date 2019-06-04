@@ -1,0 +1,13 @@
+FROM node:11-alpine
+
+WORKDIR /home/node
+
+ADD package.json .
+ADD package-lock.json .
+RUN npm ci --only=prod
+
+ADD . .
+
+RUN echo "REACT_APP_API_URL=http://notes-server.minikube" > .env.local
+
+ENTRYPOINT [ "npm", "run", "start" ]

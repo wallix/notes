@@ -19,5 +19,6 @@ RUN go build .
 FROM alpine
 COPY --from=0 /go/src/github.com/wallix/notes/server/server .
 COPY --from=0 /go/src/github.com/wallix/notes/server/*.pem /
+RUN mkdir /notes-db
 
 CMD [ "./server" ]

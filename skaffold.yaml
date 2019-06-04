@@ -1,14 +1,22 @@
-apiVersion: skaffold/v1beta8
+apiVersion: skaffold/v1beta11
 kind: Config
 build:
   artifacts:
-    - image: note-client
+    - image: notes-client
       context: client
-    - image: note-server
-      context: server
+      docker:
+        dockerfile: Dockerfile.dev
+        # buildArgs:
+        #   PUBLIC_URL: "https://192.168.64.10/notes-client"
+      sync:
+        manual:
+          - src: "src/**/*"
+            dest: /home/node/src
+    - image: notes-server
+      context: ./server/
   tagPolicy:
     sha256: {}
 deploy:
   kubectl:
     manifests:
-      - k8s/*.yaml
+      - k8s/dev/*.yaml

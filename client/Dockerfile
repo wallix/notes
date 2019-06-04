@@ -6,7 +6,11 @@ ADD package.json .
 ADD package-lock.json .
 RUN npm ci --only=prod
 
-ADD . /home/node
+ADD . .
+
+ARG PUBLIC_URL=https://demo-notes.datapeps.com
+ENV PUBLIC_URL=${PUBLIC_URL}
+
 RUN npm run build
 
 FROM node:11-alpine

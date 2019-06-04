@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: notes-ingress
+
+spec:
+  rules:
+    - host: notes-client.minikube
+      http:
+        paths:
+          - backend:
+              serviceName: notes-client
+              servicePort: 80
+    - host: notes-server.minikube
+      http:
+        paths:
+          - backend:
+              serviceName: notes-server
+              servicePort: 80
