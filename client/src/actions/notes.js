@@ -89,7 +89,7 @@ function getNotes(group) {
   async function getUserNotes(dispatch) {
     try {
       let { notes } = await notesService.getNotes();
-      dispatch(success({ ...notes }));
+      dispatch(success({ notes }));
     } catch (error) {
       dispatch(failure(error));
     }
@@ -98,7 +98,7 @@ function getNotes(group) {
   async function getGroupNotes(dispatch, groupID) {
     try {
       let { notes } = await notesService.getGroupNotes(groupID);
-      dispatch(success({ ...notes }));
+      dispatch(success({ notes }));
     } catch (error) {
       dispatch(failure(error));
     }
