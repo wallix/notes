@@ -148,9 +148,9 @@ describe(`Notes sharing ${seed}`, function() {
     );
 
     // New note should appear and use .shared css class
-    cy.contains("div.panel-body", encryptedSharedContent, {
-      timeout: 20000
-    }).should("exist");
+    cy.contains("div.panel-body", encryptedSharedContent, { timeout: 20000 })
+      .parentsUntil("li")
+      .find(".shared");
   });
 
   it(`charlie.${seed} find his notes`, function() {

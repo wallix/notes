@@ -50,7 +50,8 @@ function postNote(note, users, groupID) {
       const response = await notesService.postNote(note, groupID, users);
       note.ID = response.noteID;
       await notesService.shareNote(note, users);
-      dispatch(success(note));
+      const newNote = await notesService.getNote(note.ID);
+      dispatch(success(newNote));
     } catch (error) {
       dispatch(failure(error));
     }

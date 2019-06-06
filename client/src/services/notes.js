@@ -20,6 +20,20 @@ export async function postNote(note, groupID, users) {
   return handleResponse(response);
 }
 
+export async function getNote(id) {
+  const requestOptions = {
+    method: "GET",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/notes/${id}`,
+    requestOptions
+  );
+  const { note } = await handleResponse(response);
+  return await decryptNote(note);
+}
+
 export async function getNotes() {
   const requestOptions = {
     method: "GET",

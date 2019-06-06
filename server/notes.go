@@ -43,7 +43,7 @@ func (e *Env) noteGetHandler(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"err": err})
 		return
 	}
-	err = e.db.Model(&user).Where("note_id = ?", noteID).Related(&note, "Notes").Error
+	err = e.db.Preload("Users").Model(&user).Where("note_id = ?", noteID).Related(&note, "Notes").Error
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"err": err})
 		return
