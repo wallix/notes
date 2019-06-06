@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,15 +12,13 @@ import (
 // Note represents a note
 type Note struct {
 	gorm.Model
-	Title      string
-	Content    string
-	Owner      string
-	Tags       string
-	SharedWith []*Login `gorm:"many2many:note_shared;"`
-	Groups     []*Group `gorm:"many2many:note_groups;"`
+	Title   string
+	Content string
+	Users   []*User  `gorm:"many2many:note_shared;"`
+	Groups  []*Group `gorm:"many2many:note_groups;"`
 }
 
-func (e *Env) getSharedNotes(c *gin.Context) {
+func (e *Env) noteListHandler(c *gin.Context) {
 	var notes []Note
 	user, err := e.getUser(getOwner(c))
 	if err != nil {
@@ -27,7 +26,7 @@ func (e *Env) getSharedNotes(c *gin.Context) {
 		return
 	}
 
-	err = e.db.Model(&user).Related(&notes, "SharedNotes").Error
+	err = e.db.Preload("Users").Model(&user).Related(&notes, "Notes").Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return
@@ -36,35 +35,17 @@ func (e *Env) getSharedNotes(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"notes": notes})
 }
 
-func (e *Env) noteListHandler(c *gin.Context) {
-	var notes []Note
-
-	owner := getOwner(c)
-	err := e.db.Preload("SharedWith").Where("owner = ?", owner).Find(&notes).Error
-
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
-		return
-	}
-
-	// /!\ Quick workaround to hide password
-	// TODO : remove after db changes
-	for _, note := range notes {
-		for _, sharer := range note.SharedWith {
-			sharer.Password = ""
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{"notes": notes})
-}
-
 func (e *Env) noteGetHandler(c *gin.Context) {
 	var note Note
 	noteID := c.Param("id")
-	owner := getOwner(c)
-	err := e.db.Where("owner = ? AND id = ?", owner, noteID).First(&note).Error
+	user, err := e.getUser(getOwner(c))
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		c.JSON(http.StatusForbidden, gin.H{"err": err})
+		return
+	}
+	err = e.db.Model(&user).Where("note_id = ?", noteID).Related(&note, "Notes").Error
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"err": err})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"note": note})
@@ -74,11 +55,15 @@ func (e *Env) noteShareHandler(c *gin.Context) {
 	var note Note
 	noteID := c.Param("id")
 	recipientID := c.Param("with")
-	owner := getOwner(c)
-	// must be owner to share
-	err := e.db.Where("owner = ? AND id = ?", owner, noteID).First(&note).Error
+	user, err := e.getUser(getOwner(c))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	// must be in the group user to share
+	err = e.db.Model(&user).Where("notes.id = ?", noteID).Related(&note, "Notes").Error
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"err": err})
 		return
 	}
 	// get user to share with
@@ -88,7 +73,7 @@ func (e *Env) noteShareHandler(c *gin.Context) {
 		return
 	}
 	// append user
-	err = e.db.Model(&note).Association("SharedWith").Append(login).Error
+	err = e.db.Model(&note).Association("Users").Append(login).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return
@@ -113,7 +98,6 @@ func (e *Env) createOrUpdateNote(noteID string, note *Note) error {
 	e.db.Where("ID = ?", noteID).First(&previous)
 	previous.Title = note.Title
 	previous.Content = note.Content
-	previous.Tags = note.Tags
 	return e.db.Save(&previous).Error
 }
 
@@ -127,9 +111,13 @@ func (e *Env) notePostHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err})
 		return
 	}
-
+	// get owner
+	usr, err := e.getUser(getOwner(c))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"err": fmt.Errorf("Author not found")})
+	}
 	// set note owner
-	note.Owner = getOwner(c)
+	note.Users = []*User{usr}
 	// get the (optional) id from path
 	noteID := c.Param("id")
 	// create or update the note
@@ -174,7 +162,7 @@ func (e *Env) noteGroupListHandler(c *gin.Context) {
 	var group Group
 	var notes []Note
 	groupID := c.Param("id")
-	err := e.db.Where("id = ?", groupID).First(&group).Error
+	err := e.db.First(&group, groupID).Error
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
 		return
@@ -206,18 +194,49 @@ func (e *Env) createGroupNote(note *Note, groupID string) error {
 func (e *Env) noteDelete(c *gin.Context) {
 	var note Note
 	// get owner and note id
-	owner := getOwner(c)
 	noteID := c.Param("id")
-	// retrieve the note
-	err := e.db.Where("owner = ? AND ID = ?", owner, noteID).First(&note).Error
+	user, err := e.getUser(getOwner(c))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
 		return
 	}
-	// delete the note
-	err = e.db.Delete(&note).Error
+	// must be in the group user to delete
+	err = e.db.Model(&user).Where("notes.id = ?", noteID).Related(&note, "Notes").Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
+		c.JSON(http.StatusForbidden, gin.H{"err": err})
+		return
+	}
+	// delete the user association with the note
+	err = e.db.Model(&user).Association("Notes").Delete(&note).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func (e *Env) noteGroupDeleteHandler(c *gin.Context) {
+	var note Note
+	var group Group
+	groupID := c.Param("id")
+	noteID := c.Param("noteId")
+	// Check the relation between the group and the note
+	if e.db.
+		Joins("JOIN note_groups ON note_id = notes.id AND group_id = ?", groupID).
+		First(&note, noteID).RecordNotFound() {
+		c.JSON(http.StatusNotFound, gin.H{"err": "Not Found"})
+		return
+	}
+	// Get the group
+	err := e.db.First(&group, groupID).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		return
+	}
+	// delete the group association with the note
+	err = e.db.Model(&note).Association("Groups").Delete(&group).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{})

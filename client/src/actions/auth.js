@@ -7,6 +7,7 @@ function login(username, password) {
     dispatch(request());
     try {
       dispatch(success(await authService.login(username, password)));
+      dispatch(uiActions.clear());
     } catch (error) {
       dispatch(failure(error));
       dispatch(uiActions.error(error.message));

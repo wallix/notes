@@ -1,0 +1,26 @@
+settings:
+  legacy:
+    force: false
+    interval: 0s
+schema:
+- name: server
+  path: .
+  commands:
+    test:
+      status: true
+      method: go test ./...
+    install:
+      status: true
+      method: go build .
+    run:
+      status: true
+      method: ./server
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    ignored_paths:
+    - .git
+    - .realize
+    - vendor

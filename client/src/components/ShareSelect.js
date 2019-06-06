@@ -8,7 +8,6 @@ class ShareSelect extends React.Component {
     this.state = {
       users: []
     };
-
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
@@ -18,6 +17,7 @@ class ShareSelect extends React.Component {
         id={"ShareSelect"}
         isMulti={true}
         placeholder={"Share with..."}
+        defaultValue={this.props.defaultValue}
         onChange={options => this.props.onChange(options.map(o => o.value))}
         options={this.state.users.map(user => ({ label: user, value: user }))}
         onInputChange={this.handleInputChange}

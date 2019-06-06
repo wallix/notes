@@ -45,6 +45,7 @@ class Navigation extends React.Component {
                 New Note
               </Button>
               <Button
+                data-test="refresh"
                 style={{ marginLeft: "15px" }}
                 onClick={() => {
                   this.props.dispatch(usersActions.refresh());

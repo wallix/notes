@@ -3,8 +3,8 @@ import { ResourceAPI, ID, getLogin } from "datapeps-sdk";
 import { handleResponse, authHeader, groupLogin } from "./utils";
 import store from "../store";
 
-export async function postNote(note, groupID, sharedWith) {
-  note = await encryptNote(note, groupID, sharedWith);
+export async function postNote(note, groupID, users) {
+  note = await encryptNote(note, groupID, users);
   const requestOptions = {
     method: "POST",
     headers: authHeader(true),
@@ -33,20 +33,7 @@ export async function getNotes() {
   return handleNotesResponse(response);
 }
 
-export async function getSharedNotes() {
-  const requestOptions = {
-    method: "GET",
-    headers: authHeader(false)
-  };
-
-  const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/share/notes`,
-    requestOptions
-  );
-  return handleNotesResponse(response);
-}
-
-export async function getSharedWith(note) {
+export async function getUsers(note) {
   const {
     auth: { datapeps },
     selectedGroup: group
@@ -83,6 +70,19 @@ export async function deleteNote(id) {
   return handleResponse(response);
 }
 
+export async function deleteGroupNote(id, groupId) {
+  const requestOptions = {
+    method: "DELETE",
+    headers: authHeader(false)
+  };
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/auth/group/${groupId}/notes/${id}`,
+    requestOptions
+  );
+  return handleResponse(response);
+}
+
 export async function shareNote(note, sharingList) {
   if (sharingList == null || sharingList.length === 0) {
     return;
@@ -105,18 +105,17 @@ export async function shareNote(note, sharingList) {
   });
 }
 
-async function handleNotesResponse(response, groupID) {
+async function handleNotesResponse(response) {
   const { notes } = await handleResponse(response);
-  console.log("handleNotesResponse", notes);
   return { notes: await Promise.all(notes.map(decryptNote)) };
 }
 
-async function encryptNote(note, groupID, sharedWith) {
+async function encryptNote(note, groupID, users) {
   let datapeps = store.getState().auth.datapeps;
   let sharingGroup = groupID == null ? [datapeps.login] : [groupLogin(groupID)];
-  if (sharedWith != null) {
+  if (users != null) {
     sharingGroup = sharingGroup.concat(
-      sharedWith.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
+      users.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
     );
   }
   const resource = await new ResourceAPI(datapeps).create(
@@ -150,6 +149,6 @@ async function decryptNote(note) {
     const Content = resource.decrypt(note.Content);
     return { ...note, Title, Content, resourceID: id };
   } catch (e) {
-    return { ...note, Content: e.message };
+    return { ...note, Error: e.message };
   }
 }

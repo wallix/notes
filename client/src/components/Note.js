@@ -15,7 +15,7 @@ class Note extends React.Component {
   }
 
   render() {
-    const { DeletedAt, ID, deleteNote, SharedWith, group } = this.props;
+    const { DeletedAt, ID, deleteNote, Users, group, Error } = this.props;
     const { Title, Content, style } = this.state;
 
     return (
@@ -26,8 +26,9 @@ class Note extends React.Component {
           deleteNote,
           Title,
           Content,
+          Error,
           style,
-          SharedWith,
+          Users,
           openShareModal: () => {
             this.props.openModal(uiConstants.ShareNoteModal, {
               note: this.props

@@ -10,36 +10,50 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Login represents a user
-type Login struct {
-	gorm.Model
-	Username    string   `form:"username" json:"username" binding:"required"`
-	Password    string   `form:"password" json:"password" binding:"required"`
-	SharedNotes []*Note  `json:"-" gorm:"many2many:note_shared;"`
-	Groups      []*Group `json:"-" gorm:"many2many:group_users;"`
+// Credentials is the json object for credentials
+type Credentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
+// User represents a user
+type User struct {
+	gorm.Model
+	Username string   `form:"username" json:"username" binding:"required"`
+	Notes    []*Note  `json:"-" gorm:"many2many:note_shared;"`
+	Groups   []*Group `json:"-" gorm:"many2many:group_users;"`
+}
+
+// Auth contains password
+type Auth struct {
+	gorm.Model
+	UserID   int
+	User     User `gorm:"foreignkey:UserID"`
+	Password string
+}
+
+// Group represents a group
 type Group struct {
 	gorm.Model
-	Name  string   `form:"name" json:"name" binding:"required"`
-	Users []*Login `json:"users" gorm:"many2many:group_users;"`
-	Notes []*Note  `gorm:"many2many:note_groups;"`
+	Name  string  `form:"name" json:"name" binding:"required"`
+	Users []*User `json:"users" gorm:"many2many:group_users;"`
+	Notes []*Note `gorm:"many2many:note_groups;"`
 }
 
-func (e *Env) getUser(username string) (*Login, error) {
-	var login Login
+func (e *Env) getUser(username string) (*User, error) {
+	var login User
 	err := e.db.Where("username = ?", username).First(&login).Error
 	return &login, err
 }
 
-func (e *Env) getUsers(username []string) ([]*Login, error) {
-	var logins []*Login
+func (e *Env) getUsers(username []string) ([]*User, error) {
+	var logins []*User
 	err := e.db.Where("username IN (?)", username).Find(&logins).Error
 	return logins, err
 }
 
-func (e *Env) changePassword(username string, json Login) error {
-	var login Login
+func (e *Env) changePassword(username string, json Credentials) error {
+	var login Auth
 	if username != json.Username {
 		return (errors.New("username does not match"))
 	}
@@ -50,7 +64,7 @@ func (e *Env) changePassword(username string, json Login) error {
 
 // create a new account, or update the password of an existing account
 func (e *Env) subscribeHandler(c *gin.Context) {
-	var login Login
+	var login Credentials
 	if err := c.ShouldBindJSON(&login); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err}) // SECURITY
 		return
@@ -69,25 +83,28 @@ func (e *Env) subscribeHandler(c *gin.Context) {
 		return
 	}
 	// case: user is not logged in, create a new account
-	var query Login
-	err := e.db.First(&query, "username = ?", login.Username).Error
+	var user User
+	err := e.db.Table("users").
+		Where("username = ? and password = ?", login.Username, login.Password).
+		Joins("JOIN auths ON users.id = user_id").First(&user).Error
 	if err == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"err": "user exists"})
 		return
 	}
-	err = e.db.Save(&login).Error
+	var query = Auth{Password: login.Password, User: User{Username: login.Username}}
+	err = e.db.Save(&query).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err}) // SECURITY
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "user created", "userID": login.ID})
+	c.JSON(http.StatusOK, gin.H{"status": "user created", "userID": query.ID})
 }
 
 func (e *Env) userListHandler(c *gin.Context) {
 	var usernames []string
 	search := c.Query("search")
 
-	req := e.db.Model(&Login{}).
+	req := e.db.Model(&User{}).
 		Where("deleted_at IS NULL")
 
 	if len(search) > 0 {
@@ -106,6 +123,7 @@ func (e *Env) userListHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"users": usernames})
 }
 
+// CreateGroupRequest format of create request
 type CreateGroupRequest struct {
 	Name  string
 	Users []string
@@ -152,6 +170,7 @@ func (e *Env) groupGetHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"group": group})
 }
 
+// GroupEditRequest format of edit request
 type GroupEditRequest struct {
 	Name  string
 	Users []string
@@ -189,7 +208,7 @@ func (e *Env) groupEditHandler(c *gin.Context) {
 
 func (e *Env) groupListHandler(c *gin.Context) {
 	owner, err := e.getUser(getOwner(c))
-	err = e.db.Model(&owner).Related(&owner.Groups, "Groups").Error
+	err = e.db.Preload("Users").Model(&owner).Related(&owner.Groups, "Groups").Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err})
 		return

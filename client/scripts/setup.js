@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 /// <reference types="Node" />
 if (global["fetch"] === undefined) {
   global["fetch"] = require("node-fetch");
@@ -13,9 +14,9 @@ const crypto = require("crypto"),
 
 let APIHost = "https://api.datapeps.com";
 
-if (process.env.PEPSCRYPTO_HOST) {
+if (process.env.DATAPEPS_API_HOST) {
   process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-  let APIHost = "https://" + process.env.PEPSCRYPTO_HOST;
+  APIHost = "https://" + process.env.DATAPEPS_API_HOST;
   DataPeps.configure(APIHost);
 }
 

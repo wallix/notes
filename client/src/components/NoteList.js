@@ -65,10 +65,11 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
                   <span
                     style={{ float: "right" }}
                     onClick={() => {
-                      this.props.dispatch(usersActions.refresh());
+                      dispatch(usersActions.refresh());
                     }}
                   >
                     <Glyphicon
+                      data-test="edit-group"
                       onClick={e => {
                         e.stopPropagation();
                         dispatch(

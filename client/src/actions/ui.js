@@ -14,7 +14,7 @@ function success(message) {
 
 function error(error) {
   let message = error;
-  if (message !== "string" && error.message != null) {
+  if (error && typeof message !== "string" && error.message != null) {
     message = error.message;
   }
   return { type: alertConstants.ERROR, message };

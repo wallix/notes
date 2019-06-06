@@ -8,6 +8,7 @@ import { history } from "../history";
 // Components
 import PrivateRoute from "./PrivateRoute";
 import MainPage from "./MainPage";
+import ErrorDisplay from "./ErrorDisplay";
 
 class App extends React.Component {
   constructor(props) {
@@ -21,12 +22,9 @@ class App extends React.Component {
   }
 
   render() {
-    const { alert } = this.props;
     return (
       <div>
-        {alert.message && (
-          <div className={`alert ${alert.type}`}>{alert.message}</div>
-        )}
+        <ErrorDisplay />
         <Router history={history}>
           <div>
             <div>
@@ -60,11 +58,4 @@ class App extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  const { alert } = state;
-  return {
-    alert
-  };
-}
-
-export default connect(mapStateToProps)(App);
+export default connect()(App);

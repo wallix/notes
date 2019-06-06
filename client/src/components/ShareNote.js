@@ -14,7 +14,8 @@ class ShareNote extends React.Component {
     this.onShareNote = this.onShareNote.bind(this);
 
     this.state = {
-      sharingList: []
+      sharingList: [],
+      users: []
     };
   }
 
@@ -24,64 +25,60 @@ class ShareNote extends React.Component {
 
   render() {
     const { modals, closeModal } = this.props;
-    const { sharedWith } = this.state;
+
+    let currentSharer = [];
+    if (
+      this.props.payload &&
+      this.props.payload.note &&
+      this.props.payload.note.Users
+    ) {
+      currentSharer = this.props.payload.note.Users.map(u => u.username);
+    }
 
     return (
-      <div>
-        <Modal
-          show={modals.includes(uiConstants.ShareNoteModal)}
-          onHide={() => closeModal(uiConstants.ShareNoteModal)}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Extends share of note with...</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>Shared with:</p>
-            <div className="panel">
-              {sharedWith == null
-                ? null
-                : sharedWith.map(login => (
-                    <span key={login} className="label label-success">
-                      {login}
-                    </span>
-                  ))}
-            </div>
-            <Form onSubmit={this.onShareNote}>
-              <ShareSelect onChange={this.changeSharingGroup} />
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={() => closeModal(uiConstants.ShareNoteModal)}>
-              Cancel
-            </Button>
-            <Button
-              bsStyle="primary"
-              onClick={this.onShareNote}
-              type="submit"
-              disabled={this.state.sharingList.length === 0}
-              data-test="share-note"
-            >
-              Save
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </div>
+      <Modal
+        show={modals.includes(uiConstants.ShareNoteModal)}
+        onHide={() => closeModal(uiConstants.ShareNoteModal)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Extends share of note with...</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Shared with:</p>
+          <div className="panel">
+            {currentSharer.map(login => (
+              <span key={login} className="label label-success">
+                {login}
+              </span>
+            ))}
+          </div>
+          <Form onSubmit={this.onShareNote}>
+            <ShareSelect
+              // You can only extends share for notes
+              // defaultValue={currentSharer.map(user => ({
+              //   label: user,
+              //   value: user
+              // }))}
+              onChange={this.changeSharingGroup}
+            />
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => closeModal(uiConstants.ShareNoteModal)}>
+            Cancel
+          </Button>
+          <Button
+            bsStyle="primary"
+            onClick={this.onShareNote}
+            type="submit"
+            disabled={this.state.sharingList.length === 0}
+            data-test="share-note"
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
     );
-  }
-
-  componentWillReceiveProps(props) {
-    if (props != null && props.payload != null) {
-      this.loadShareWith(props);
-    }
-  }
-
-  async loadShareWith(props) {
-    const note = props.payload.note;
-    if (note == null) {
-      return;
-    }
-    let sharedWith = await notesService.getSharedWith(note);
-    this.setState({ sharedWith });
   }
 
   async onShareNote() {

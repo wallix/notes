@@ -94,6 +94,7 @@ class UserProfile extends React.Component {
                     disabled={props.user}
                     onChange={this.changeUsername}
                     {...userValue}
+                    autoComplete="username"
                   />
                   <FormControl.Static>
                     {!props.user && this.check() === 1

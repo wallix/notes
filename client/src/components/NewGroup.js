@@ -76,7 +76,7 @@ class NewGroup extends React.Component {
   async onAddGroup() {
     const user = this.props.user;
     const username = user ? parseJWT(user.token).id : "User";
-    this.props.addGroup({
+    await this.props.addGroup({
       name: this.state.name,
       users: [username].concat(this.state.users)
     });

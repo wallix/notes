@@ -29,6 +29,8 @@ jobs:
   create-app:
     docker:
       - image: circleci/node:11
+    environment:
+      DATAPEPS_API_HOST: preprod-api.datapeps.com
     steps:
       - attach_workspace:
           at: ./

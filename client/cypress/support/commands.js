@@ -24,16 +24,28 @@
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("login", (login, pw) => {
-  cy.get('[name="username"]').type(login);
-  cy.get('[name="password"]').type(pw);
+Cypress.Commands.add("login", (login, pw, should_success = true) => {
+  cy.get('[name="username"]')
+    .clear()
+    .type(login);
+  cy.get('[name="password"]')
+    .clear()
+    .type(pw);
   cy.get('[data-test="login-btn"]').click();
-  cy.contains("button", "New Note", { timeout: 20000 }).should("exist");
+
+  if (should_success)
+    cy.contains("button", "New Note", { timeout: 20000 }).should("exist");
+  else
+    cy.contains("div.alert", "incorrect Username or Password", {
+      timeout: 20000
+    }).should("exist");
 });
 
 Cypress.Commands.add("shareWith", shareWith => {
   cy.get("#ShareSelect > div > div:first-child").click();
+  cy.wait(500);
   cy.get("#ShareSelect input").type(shareWith, { force: true });
+  cy.wait(500);
   cy.get("#ShareSelect > div:nth-of-type(2) > div:nth-of-type(1)").should(
     "contain",
     shareWith

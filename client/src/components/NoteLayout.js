@@ -1,5 +1,5 @@
 import React from "react";
-import { Panel, Button, ButtonGroup, Glyphicon } from "react-bootstrap";
+import { Alert, Panel, Button, ButtonGroup, Glyphicon } from "react-bootstrap";
 import "./NoteLayout.css";
 
 export const NoteLayout = ({
@@ -8,8 +8,9 @@ export const NoteLayout = ({
   deleteNote,
   Title,
   Content,
+  Error,
   style,
-  SharedWith,
+  Users,
   openShareModal,
   group
 }) => (
@@ -17,25 +18,26 @@ export const NoteLayout = ({
     <Panel.Heading>
       <Panel.Title componentClass="h3">{Title}</Panel.Title>
     </Panel.Heading>
-    <Panel.Body>{Content}</Panel.Body>
-    {group != null ? null : (
-      <Panel.Footer className="text-right">
-        <ButtonGroup>
+    <Panel.Body>
+      {Content}
+      {Error && <Alert bsStyle="danger">{Error}</Alert>}
+    </Panel.Body>
+    <Panel.Footer className="text-right">
+      <ButtonGroup>
+        {group != null ? null : (
           <Button onClick={openShareModal} data-test="share">
             <Glyphicon
-              className={
-                SharedWith && SharedWith.length > 0 ? "shared" : "notshared"
-              }
+              className={Users && Users.length > 1 ? "shared" : "notshared"}
               glyph="share"
             />
           </Button>
-          {DeletedAt || (
-            <Button bsStyle={style} onClick={() => deleteNote(ID)}>
-              <Glyphicon glyph="trash" />
-            </Button>
-          )}
-        </ButtonGroup>
-      </Panel.Footer>
-    )}
+        )}
+        {DeletedAt || (
+          <Button bsStyle={style} onClick={() => deleteNote(ID)}>
+            <Glyphicon glyph="trash" />
+          </Button>
+        )}
+      </ButtonGroup>
+    </Panel.Footer>
   </Panel>
 );

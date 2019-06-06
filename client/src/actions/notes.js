@@ -20,29 +20,36 @@ function addNote(Title, Content, sharedIds) {
 }
 
 function deleteNote(id) {
-  return dispatch => {
+  return async (dispatch, getState) => {
     let del = {
       type: notesConstants.DELETE_NOTE,
       id
     };
-
-    notesService
-      .deleteNote(id)
-      .then(ok => dispatch(del), error => dispatch(failure(error)));
+    const group = getState().selectedGroup;
+    try {
+      if (group) {
+        await notesService.deleteGroupNote(id, group.ID);
+      } else {
+        await notesService.deleteNote(id);
+      }
+      dispatch(del);
+    } catch (error) {
+      dispatch(failure(error));
+    }
   };
   function failure(error) {
     return { type: notesConstants.DEL_FAILURE, error };
   }
 }
 
-function postNote(note, sharedWith, groupID) {
+function postNote(note, users, groupID) {
   return async dispatch => {
-    dispatch(request(note, sharedWith, groupID));
+    dispatch(request());
 
     try {
-      const response = await notesService.postNote(note, groupID, sharedWith);
+      const response = await notesService.postNote(note, groupID, users);
       note.ID = response.noteID;
-      await notesService.shareNote(note, sharedWith);
+      await notesService.shareNote(note, users);
       dispatch(success(note));
     } catch (error) {
       dispatch(failure(error));
@@ -79,41 +86,22 @@ function getNotes(group) {
     return { type: notesConstants.GETALL_FAILURE, error };
   }
 
-  function getUserNotes(dispatch) {
-    notesService.getNotes().then(
-      notes =>
-        notesService.getSharedNotes().then(
-          shared => {
-            dispatch(
-              success({
-                notes: notes.notes.concat(shared.notes),
-                source: "both"
-              })
-            );
-          },
-          error => {
-            dispatch(success({ ...notes, source: "owner" }));
-            dispatch(failure(error));
-          }
-        ),
-      error => dispatch(failure(error))
-    );
+  async function getUserNotes(dispatch) {
+    try {
+      let { notes } = await notesService.getNotes();
+      dispatch(success({ notes }));
+    } catch (error) {
+      dispatch(failure(error));
+    }
   }
 
-  function getGroupNotes(dispatch, groupID) {
-    notesService.getGroupNotes(groupID).then(
-      response =>
-        dispatch(
-          success({
-            notes: response.notes,
-            source: "group"
-          })
-        ),
-      error => {
-        dispatch(success({ notes: [], source: "owner" }));
-        dispatch(failure(error));
-      }
-    );
+  async function getGroupNotes(dispatch, groupID) {
+    try {
+      let { notes } = await notesService.getGroupNotes(groupID);
+      dispatch(success({ notes }));
+    } catch (error) {
+      dispatch(failure(error));
+    }
   }
 }
 
