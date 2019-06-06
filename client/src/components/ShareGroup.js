@@ -33,7 +33,7 @@ class ShareGroup extends React.Component {
     }
     let currentSharer = [];
     if (group.users) {
-      currentSharer = [...group.users.map(u => u.username)];
+      currentSharer = group.users.map(u => u.username);
     }
     return (
       <div>

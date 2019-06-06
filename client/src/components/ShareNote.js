@@ -32,7 +32,7 @@ class ShareNote extends React.Component {
       this.props.payload.note &&
       this.props.payload.note.Users
     ) {
-      currentSharer = [...this.props.payload.note.Users.map(u => u.username)];
+      currentSharer = this.props.payload.note.Users.map(u => u.username);
     }
 
     return (
