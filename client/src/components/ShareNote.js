@@ -5,7 +5,6 @@ import ShareSelect from "./ShareSelect";
 
 import { uiConstants } from "../constants";
 import { noteActions, uiActions } from "../actions";
-import { notesService } from "../services";
 
 class ShareNote extends React.Component {
   constructor(props, context) {
@@ -86,8 +85,7 @@ class ShareNote extends React.Component {
       const {
         payload: { note }
       } = this.props;
-      await notesService.shareNote(note, this.state.sharingList);
-      this.props.closeModal(uiConstants.ShareNoteModal);
+      this.props.shareNote(note, this.state.sharingList);
     } catch (e) {
       console.log(e);
     }

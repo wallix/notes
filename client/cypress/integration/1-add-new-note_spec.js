@@ -186,12 +186,6 @@ describe(`Notes sharing ${seed}`, function() {
     cy.contains("Save").click();
     cy.contains("Save").should("not.exist");
 
-    // Force refresh, status of note should change.
-    // TODO : remove the need to refresh
-    cy.wait(2000);
-    cy.get('[data-test="refresh"]').click();
-    cy.wait(2000);
-
     // Click on shared button
     cy.contains("div.panel-body", encryptedSharedContent, { timeout: 20000 })
       .parentsUntil("li")

@@ -108,17 +108,19 @@ export async function shareNote(note, sharingList) {
     note.resourceID,
     sharingList.map(u => getLogin(u, process.env.REACT_APP_DATAPEPS_APP_ID))
   );
-  await sharingList.map(u => {
-    const requestOptions = {
-      method: "POST",
-      headers: authHeader(false)
-    };
+  await Promise.all(
+    sharingList.map(async u => {
+      const requestOptions = {
+        method: "POST",
+        headers: authHeader(false)
+      };
 
-    return fetch(
-      `${process.env.REACT_APP_API_URL}/auth/share/${note.ID}/${u}`,
-      requestOptions
-    );
-  });
+      return await fetch(
+        `${process.env.REACT_APP_API_URL}/auth/share/${note.ID}/${u}`,
+        requestOptions
+      );
+    })
+  );
 }
 
 async function handleNotesResponse(response) {
