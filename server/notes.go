@@ -158,6 +158,24 @@ func (e *Env) noteGroupPostHandler(c *gin.Context) {
 	})
 }
 
+func (e *Env) noteGroupGetHandler(c *gin.Context) {
+	var group Group
+	var note Note
+	groupID := c.Param("id")
+	noteID := c.Param("noteId")
+	err := e.db.First(&group, groupID).Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	err = e.db.Model(&group).Where("notes.id = ?", noteID).Related(&note, "Notes").Error
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"err": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"note": note})
+}
+
 func (e *Env) noteGroupListHandler(c *gin.Context) {
 	var group Group
 	var notes []Note

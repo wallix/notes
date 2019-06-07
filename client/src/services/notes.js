@@ -20,14 +20,16 @@ export async function postNote(note, groupID, users) {
   return handleResponse(response);
 }
 
-export async function getNote(id) {
+export async function getNote(id, groupID) {
   const requestOptions = {
     method: "GET",
     headers: authHeader(false)
   };
 
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/auth/notes/${id}`,
+    `${process.env.REACT_APP_API_URL}/auth${
+      groupID !== undefined ? `/group/${groupID}` : ""
+    }/notes/${id}`,
     requestOptions
   );
   const { note } = await handleResponse(response);

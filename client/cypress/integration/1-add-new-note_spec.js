@@ -116,7 +116,7 @@ describe(`Notes creation ${seed}`, function() {
 });
 
 describe(`Notes sharing ${seed}`, function() {
-  it(`alice.${seed} share a new note, extends share`, function() {
+  it(`alice.${seed} share a new note`, function() {
     cy.visit("/");
 
     cy.login(`alice.${seed}`, password);
@@ -188,6 +188,7 @@ describe(`Notes sharing ${seed}`, function() {
 
     // Force refresh, status of note should change.
     // TODO : remove the need to refresh
+    cy.wait(2000);
     cy.get('[data-test="refresh"]').click();
     cy.wait(2000);
 
@@ -234,15 +235,7 @@ describe(`Sharing with groups ${seed}`, () => {
     });
 
     cy.get('[data-test="save"]').click();
-    cy.contains(group1name).should("exist");
-  });
-
-  it(`alice ${seed} add a note to the group`, () => {
-    cy.visit("/");
-    cy.login(username, password);
-    // Select the group
     cy.contains(group1name).click();
-    // Create notes
 
     for (let note of notes) {
       cy.contains("button", "New Note", {
@@ -255,6 +248,20 @@ describe(`Sharing with groups ${seed}`, () => {
         cy.get("textarea").type(note.content);
       });
       cy.contains("Save").click();
+      cy.contains(".panel-body", note.content, { timeout: 30000 }).should(
+        "exist"
+      );
+    }
+  });
+
+  it(`alice ${seed} access to the group`, () => {
+    cy.visit("/");
+    cy.login(username, password);
+    // Select the group
+    cy.contains(group1name).click();
+    // Create notes
+
+    for (let note of notes) {
       cy.contains(".panel-body", note.content, { timeout: 30000 }).should(
         "exist"
       );
@@ -358,7 +365,9 @@ describe(`Sharing with groups ${seed}`, () => {
 
     cy.wait(5000);
 
-    // Don't see the note
+    cy.contains(notes[0].content).should("exist");
+
+    // Don't see the second note
     cy.get(".panel-body").should("not.contain", notes[1].content);
   });
 });

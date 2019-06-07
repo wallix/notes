@@ -22,22 +22,22 @@ export const NoteLayout = ({
       {Content}
       {Error && <Alert bsStyle="danger">{Error}</Alert>}
     </Panel.Body>
-    <Panel.Footer className="text-right">
-      <ButtonGroup>
-        {group != null ? null : (
-          <Button onClick={openShareModal} data-test="share">
-            <Glyphicon
-              className={Users && Users.length > 1 ? "shared" : "notshared"}
-              glyph="share"
-            />
-          </Button>
-        )}
-        {DeletedAt || (
+    {DeletedAt || (
+      <Panel.Footer className="text-right">
+        <ButtonGroup>
+          {group != null ? null : (
+            <Button onClick={openShareModal} data-test="share">
+              <Glyphicon
+                className={Users && Users.length > 1 ? "shared" : "notshared"}
+                glyph="share"
+              />
+            </Button>
+          )}
           <Button bsStyle={style} onClick={() => deleteNote(ID)}>
             <Glyphicon glyph="trash" />
           </Button>
-        )}
-      </ButtonGroup>
-    </Panel.Footer>
+        </ButtonGroup>
+      </Panel.Footer>
+    )}
   </Panel>
 );
