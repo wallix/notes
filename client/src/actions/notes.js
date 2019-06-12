@@ -19,6 +19,25 @@ function addNote(Title, Content, sharedIds) {
   };
 }
 
+function shareNote(note, sharers) {
+  return async dispatch => {
+    try {
+      await notesService.shareNote(note, sharers);
+      const newNote = await notesService.getNote(note.ID);
+      dispatch(success(newNote));
+    } catch (error) {
+      dispatch(failure(error));
+    }
+    dispatch(uiActions.closeModal(uiConstants.ShareNoteModal));
+  };
+  function success(note) {
+    return { type: notesConstants.SHARE_SUCCESS, note };
+  }
+  function failure(error) {
+    return { type: notesConstants.SHARE_FAILURE, error };
+  }
+}
+
 function deleteNote(id) {
   return async (dispatch, getState) => {
     let del = {
@@ -50,7 +69,8 @@ function postNote(note, users, groupID) {
       const response = await notesService.postNote(note, groupID, users);
       note.ID = response.noteID;
       await notesService.shareNote(note, users);
-      dispatch(success(note));
+      const newNote = await notesService.getNote(note.ID, groupID);
+      dispatch(success(newNote));
     } catch (error) {
       dispatch(failure(error));
     }
@@ -107,6 +127,7 @@ function getNotes(group) {
 
 export const noteActions = {
   addNote,
+  shareNote,
   deleteNote,
   getNotes
 };

@@ -522,6 +522,16 @@ func TestGroup(t *testing.T) {
 	if note0["Title"].(string) != "this is title group" {
 		t.Fatalf("First note has wrong title: %v", note0["Title"].(string))
 	}
+	// Test get of 1 note
+	// get notes and check length
+	result, err = getJSON(t, fmt.Sprintf("/auth/group/%v/notes/%v", groupID, note0["ID"]), token1, 200)
+	if err != nil {
+		t.Fatalf("Non-expected error: %v", err)
+	}
+	newNote0 := result["note"].(map[string]interface{})
+	if note0["CreatedAt"] != newNote0["CreatedAt"] {
+		t.Fatalf("Group note is different than before")
+	}
 	// user2 can access group 2, not user 3
 	_, err = getJSON(t, fmt.Sprintf("/auth/group/%v/notes", sharedGroupID), token2, 200)
 	if err != nil {

@@ -4,6 +4,8 @@ export const notes = (state = [], action) => {
   switch (action.type) {
     case notesConstants.POST_SUCCESS:
       return [...state, action.note];
+    case notesConstants.SHARE_SUCCESS:
+      return state.map(n => (n.ID === action.note.ID ? action.note : n));
     case notesConstants.DELETE_NOTE:
       return state.map(note =>
         note.ID === action.id

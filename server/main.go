@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	jwt "github.com/appleboy/gin-jwt"
+	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -99,6 +99,7 @@ func (e *Env) httpEngine() *gin.Engine {
 			group.PATCH("", e.groupEditHandler)
 			group.GET("/notes", e.noteGroupListHandler)
 			group.POST("/notes", e.noteGroupPostHandler)
+			group.GET("/notes/:noteId", e.noteGroupGetHandler)
 			group.DELETE("/notes/:noteId", e.noteGroupDeleteHandler)
 		}
 
