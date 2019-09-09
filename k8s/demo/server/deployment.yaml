@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-server-demo
+spec:
+  selector:
+    matchLabels:
+      app: notes-server-demo
+  template:
+    metadata:
+      labels:
+        app: notes-server-demo
+    spec:
+      containers:
+        - name: notes-server-demo
+          image: gcr.io/peps-146814/notes-server-demo:dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: notes-server-demo-db
+              mountPath: /notes-db
+      volumes:
+        - name: notes-server-demo-db
+          persistentVolumeClaim:
+            claimName: notes-server-demo-db

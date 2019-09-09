@@ -1,0 +1,19 @@
+---
+# Source: umbrella/charts/core/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-server-demo
+  labels:
+    app: notes-server-demo
+    version: dev
+    chart: notes-server-demo
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: notes-server-demo

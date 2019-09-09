@@ -4,11 +4,13 @@ import store from "../store";
 
 export async function login(username, password) {
   try {
+    console.log("HERE1");
     const connector = {
       createSession: async (login, password) =>
         await loginNotes(login, password),
       getToken: async user => user.token
     };
+    console.log("HERE2");
     const {
       session: datapeps,
       appSession: user
@@ -18,6 +20,7 @@ export async function login(username, password) {
       password,
       connector
     );
+    console.log("HERE3");
     return { user, datapeps };
   } catch (error) {
     if (error.kind) {
@@ -42,7 +45,9 @@ async function loginNotes(username, password) {
     `${process.env.REACT_APP_API_URL}/login`,
     requestOptions
   );
+  console.log("Inside!");
   const user = await handleResponse(response);
+  console.log("Inside1!");
   return user;
 }
 

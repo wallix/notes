@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-client-demo
+spec:
+  selector:
+    matchLabels:
+      app: notes-client-demo
+  template:
+    metadata:
+      labels:
+        app: notes-client-demo
+    spec:
+      containers:
+        - name: notes-client-demo
+          image: gcr.io/peps-146814/notes-client-demo:dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REACT_APP_API_URL
+              value: http://35.205.141.235nanana
+            - name: REACT_APP_DATAPEPS_API
+              value: https://34.76.218.200:443
+            - name: REACT_APP_DATAPEPS_APP_ID
+              value: notes-demo-1-app
+            - name: REACT_APP_GROUP_SEED
+              value: E

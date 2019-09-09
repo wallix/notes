@@ -9,6 +9,8 @@ var identityKey = "id"
 
 func makePayLoad(data interface{}) jwt.MapClaims {
 	if v, ok := data.(*User); ok {
+
+	
 		return jwt.MapClaims{
 			identityKey: v.Username,
 		}

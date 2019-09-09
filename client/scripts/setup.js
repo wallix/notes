@@ -14,6 +14,7 @@ const crypto = require("crypto"),
 
 let APIHost = "https://api.datapeps.com";
 
+console.log("API host: ", process.env.DATAPEPS_API_HOST);
 if (process.env.DATAPEPS_API_HOST) {
   process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
   APIHost = "https://" + process.env.DATAPEPS_API_HOST;
