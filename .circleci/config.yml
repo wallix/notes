@@ -30,7 +30,7 @@ jobs:
     docker:
       - image: circleci/node:11
     environment:
-      DATAPEPS_API_HOST: "34.76.218.198"
+      DATAPEPS_API_HOST: "34.76.218.198:443"
     steps:
       - attach_workspace:
           at: ./
