@@ -20,7 +20,11 @@ export const NoteLayout = ({
     </Panel.Heading>
     <Panel.Body>
       {Content}
-      {Error && <Alert bsStyle="danger">{Error}</Alert>}
+      {Error && (
+        <Alert bsStyle="warning">
+          This note is not shared with you and cannot be decrypted
+        </Alert>
+      )}
     </Panel.Body>
     {DeletedAt || (
       <Panel.Footer className="text-right">
