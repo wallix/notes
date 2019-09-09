@@ -101,7 +101,7 @@ const NoteList = ({ notes, selectedGroup, groups, dispatch }) => {
           <ul className="list-group row">
             {notes.map(note => (
               <li
-                key={note.ID}
+                key={note.ID + note.Title}
                 className="list-group-item col-xs-6 col-sm-4 col-md-3 border-0"
               >
                 <Note {...note} />
