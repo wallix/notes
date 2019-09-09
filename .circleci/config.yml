@@ -28,7 +28,7 @@ jobs:
             - ./client
   create-app:
     docker:
-      - image: circleci/node:11
+      - image: circleci/node:10
     environment:
       DATAPEPS_API_HOST: "34.76.218.198:443"
     steps:
