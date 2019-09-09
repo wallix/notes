@@ -5,7 +5,7 @@
   "devDependencies": {
     "@types/node": "^11.13.2",
     "cypress": "^3.2.0",
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^2.6.0",
     "@storybook/react": "^5.0.6",
     "@storybook/addon-actions": "^5.0.6",
     "@storybook/addon-links": "^5.0.6",
