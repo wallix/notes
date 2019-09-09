@@ -1,17 +1,19 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  name: notes-demo
   annotations:
-    kubernetes.io/tls-acme: "true"
-    certmanager.k8s.io/cluster-issuer: preprod-datapeps-cluster-issuer
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/default-backend: notes-client-demo
-  name: notes-client-demo
+    kubernetes.io/ingress.class: "nginx"
+    certmanager.k8s.io/issuer: "letsencrypt-prod"
+    certmanager.k8s.io/acme-challenge-type: http01
 spec:
   tls:
     - hosts:
         - notes.datapeps.wallix.com
       secretName: notes.datapeps.wallix.com-tls
+    - hosts:
+        - notes-api.datapeps.wallix.com
+      secretName: notes-api.datapeps.wallix.com-tls
   rules:
     - host: notes.datapeps.wallix.com
       http:
@@ -19,22 +21,6 @@ spec:
           - backend:
               serviceName: notes-client-demo
               servicePort: 80
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/tls-acme: "true"
-    certmanager.k8s.io/cluster-issuer: preprod-datapeps-cluster-issuer
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/default-backend: notes-server-demo
-  name: notes-server-demo
-spec:
-  tls:
-    - hosts:
-        - notes-api.datapeps.wallix.com
-      secretName: notes-api.datapeps.wallix.com-tls
-  rules:
     - host: notes-api.datapeps.wallix.com
       http:
         paths:
