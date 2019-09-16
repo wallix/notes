@@ -1,31 +1,31 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: note
+  name: notes
   annotations:
     kubernetes.io/ingress.class: "nginx"
     certmanager.k8s.io/issuer: "letsencrypt-prod"
     certmanager.k8s.io/acme-challenge-type: http01
 spec:
   tls:
-  - hosts:
-    - demo-notes.datapeps.com
-    secretName: demo-notes.datapeps.com-tls
-  - hosts:
-    - demo-notes-api.datapeps.com
-    secretName: demo-notes-api.datapeps.com-tls
+    - hosts:
+        - demo-notes.datapeps.com
+      secretName: demo-notes.datapeps.com-tls
+    - hosts:
+        - demo-notes-api.datapeps.com
+      secretName: demo-notes-api.datapeps.com-tls
   rules:
-  - host: demo-notes.datapeps.com
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: notes-client
-          servicePort: 80
-  - host: demo-notes-api.datapeps.com
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: notes-server
-          servicePort: 80
+    - host: demo-notes.datapeps.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: notes-client
+              servicePort: 80
+    - host: demo-notes-api.datapeps.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: notes-server
+              servicePort: 80
