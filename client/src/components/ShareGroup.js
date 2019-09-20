@@ -22,6 +22,18 @@ class ShareGroup extends React.Component {
     this.setState({ sharingList: list });
   }
 
+  UNSAFE_componentWillReceiveProps(props) {
+    const { payload } = props;
+    if (payload) {
+      const { group } = payload;
+      if (group) {
+        if (group.users) {
+          this.setState({ sharingList: group.users.map(u => u.username) });
+        }
+      }
+    }
+  }
+
   render() {
     const { modals, payload, closeModal } = this.props;
     if (payload == null) {
@@ -31,10 +43,7 @@ class ShareGroup extends React.Component {
     if (group == null) {
       return null;
     }
-    let currentSharer = [];
-    if (group.users) {
-      currentSharer = group.users.map(u => u.username);
-    }
+
     return (
       <div>
         <Modal
@@ -47,7 +56,7 @@ class ShareGroup extends React.Component {
           <Modal.Body>
             <Form onSubmit={this.onShareGroup}>
               <ShareSelect
-                defaultValue={currentSharer.map(user => ({
+                defaultValue={this.state.sharingList.map(user => ({
                   label: user,
                   value: user
                 }))}
