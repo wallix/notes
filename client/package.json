@@ -4,7 +4,7 @@
   "private": true,
   "devDependencies": {
     "@types/node": "^11.13.2",
-    "cypress": "^3.2.0",
+    "cypress": "^14.5.2",
     "node-fetch": "^2.3.0",
     "@storybook/react": "^5.0.6",
     "@storybook/addon-actions": "^5.0.6",
@@ -23,7 +23,7 @@
     "react-redux": "^7.0.1",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.0.0",
-    "react-scripts": "^2.1.8",
+    "react-scripts": "^5.0.1",
     "react-select": "^2.4.2",
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
